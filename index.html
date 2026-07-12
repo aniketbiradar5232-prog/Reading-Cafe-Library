@@ -1,0 +1,1883 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Reading Cafe Library - Membership Portal</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.25/jspdf.plugin.autotable.min.js"></script>
+    <style>
+      :root {
+        --primary: #3b2a1f;
+        --primary-soft: #efe7dc;
+        --accent: #b28a52;
+        --whatsapp: #25d366;
+        --bg: #f7f4ef;
+        --danger: #b42318;
+        --info: #2563eb;
+        --success: #1f7a4d;
+        --sheet: #2f6f4e;
+        --pdf: #8f2f1d;
+        --text: #1f2933;
+      }
+
+      body {
+        font-family: "Segoe UI", sans-serif;
+        background: var(--bg);
+        color: var(--text);
+        margin: 0;
+        padding: 10px;
+      }
+
+      .container {
+        max-width: 1400px;
+        margin: auto;
+      }
+
+      .tabs {
+        display: flex;
+        background: #fff;
+        border: 1px solid #e4d8c8;
+        border-radius: 8px;
+        overflow: hidden;
+        margin-bottom: 20px;
+        box-shadow: 0 8px 24px rgba(59, 42, 31, 0.08);
+      }
+
+      .tab {
+        flex: 1;
+        padding: 15px;
+        text-align: center;
+        cursor: pointer;
+        font-weight: bold;
+        color: #888;
+        transition: 0.3s;
+      }
+
+      .tab.active {
+        background: var(--primary);
+        color: white;
+      }
+
+      .card {
+        background: white;
+        padding: 22px;
+        border: 1px solid #e4d8c8;
+        border-radius: 8px;
+        box-shadow: 0 10px 26px rgba(59, 42, 31, 0.06);
+        margin-bottom: 20px;
+      }
+
+      input,
+      select,
+      button {
+        width: 100%;
+        padding: 12px;
+        margin: 7px 0;
+        border: 1px solid #d9cbbb;
+        border-radius: 6px;
+        box-sizing: border-box;
+        font-size: 16px;
+      }
+
+      button {
+        background: var(--primary);
+        color: white;
+        border: none;
+        font-weight: bold;
+        cursor: pointer;
+      }
+
+      button:disabled {
+        background: #ccc;
+        cursor: not-allowed;
+      }
+
+      .hidden {
+        display: none;
+      }
+
+      .month-nav {
+        display: flex;
+        gap: 8px;
+        overflow-x: auto;
+        padding: 10px 0;
+        margin-bottom: 15px;
+        scrollbar-width: none;
+      }
+
+      .month-pill {
+        background: #fff;
+        border: 1px solid #ddd;
+        padding: 8px 18px;
+        border-radius: 20px;
+        cursor: pointer;
+        white-space: nowrap;
+        font-size: 13px;
+        font-weight: bold;
+        color: #555;
+      }
+
+      .month-pill.active {
+        background: var(--primary);
+        color: white;
+      }
+
+      .scroll-table {
+        overflow-x: auto;
+        max-height: 450px;
+        border-radius: 8px;
+      }
+
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 13px;
+        background: white;
+      }
+
+      th,
+      td {
+        padding: 12px;
+        text-align: left;
+        border-bottom: 1px solid #eee;
+      }
+
+      th {
+        background: #f8f9fa;
+        position: sticky;
+        top: 0;
+        z-index: 10;
+        color: var(--primary);
+        font-size: 11px;
+        text-transform: uppercase;
+      }
+
+      .badge-today {
+        background: #fee2e2;
+        color: #991b1b;
+        border: 1px solid #991b1b;
+        padding: 4px 10px;
+        border-radius: 20px;
+        font-size: 11px;
+        font-weight: bold;
+      }
+
+      .btn-action {
+        width: auto;
+        padding: 6px 12px;
+        font-size: 11px;
+        border-radius: 4px;
+        border: none;
+        color: white;
+        cursor: pointer;
+        margin-right: 2px;
+      }
+
+      #id-warning {
+        color: var(--danger);
+        font-size: 11px;
+        font-weight: bold;
+        display: none;
+        margin-bottom: 5px;
+      }
+
+      .btn-pdf {
+        background-color: var(--pdf) !important;
+        margin-bottom: 10px;
+      }
+
+      .admin-subtabs {
+        display: flex;
+        gap: 10px;
+        margin-bottom: 20px;
+        flex-wrap: wrap;
+      }
+
+      .admin-subtab {
+        width: auto;
+        padding: 10px 18px;
+        background: #e2e8f0;
+        color: #334155;
+        border-radius: 999px;
+      }
+
+      .admin-subtab.active {
+        background: var(--primary);
+        color: white;
+      }
+
+      .summary-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+        gap: 15px;
+        margin-bottom: 20px;
+      }
+
+      .summary-box {
+        background: var(--primary-soft);
+        padding: 15px;
+        border: 1px solid #e0d1bd;
+        border-radius: 8px;
+        text-align: center;
+      }
+
+      .brand-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 16px;
+        background: #fff;
+        border: 1px solid #e4d8c8;
+        border-radius: 8px;
+        padding: 16px 20px;
+        margin-bottom: 16px;
+        box-shadow: 0 8px 24px rgba(59, 42, 31, 0.06);
+      }
+
+      .brand-title {
+        margin: 0;
+        font-size: 26px;
+        color: var(--primary);
+      }
+
+      .brand-subtitle {
+        margin: 4px 0 0;
+        font-size: 13px;
+        color: #6b5a4a;
+        font-weight: 600;
+      }
+
+      .form-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 15px;
+      }
+
+      .muted-note {
+        font-size: 12px;
+        color: #64748b;
+        margin-top: -2px;
+        margin-bottom: 10px;
+      }
+
+      .link-btn {
+        color: var(--info);
+        font-weight: bold;
+        text-decoration: none;
+      }
+
+      .sort-controls {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+        gap: 12px;
+        margin: 0 0 12px;
+      }
+
+      .readonly-field {
+        background: #f8f3eb;
+        color: #3b2a1f;
+        font-weight: 700;
+      }
+
+      .file-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 15px;
+      }
+
+      .danger-btn {
+        background: var(--danger);
+      }
+
+      .renewal-toolbar {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        flex-wrap: wrap;
+      }
+
+      .renewal-picker {
+        position: absolute;
+        opacity: 0;
+        pointer-events: none;
+        width: 1px;
+        height: 1px;
+      }
+
+      .renewal-date-chip {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 10px 16px;
+        border: 1px solid #cbd5e1;
+        border-radius: 14px;
+        background: #fff;
+      }
+
+      .renewal-current-date {
+        font-weight: 800;
+        color: var(--primary);
+        min-width: 120px;
+      }
+
+      .calendar-btn {
+        width: auto;
+        margin: 0;
+        padding: 8px 10px;
+        background: #fff;
+        color: #111827;
+        border: 1px solid #cbd5e1;
+        border-radius: 10px;
+        font-size: 18px;
+        line-height: 1;
+      }
+
+      @media (max-width: 768px) {
+        .form-grid {
+          grid-template-columns: 1fr;
+        }
+
+        .file-grid {
+          grid-template-columns: 1fr;
+        }
+      }
+    </style>
+  </head>
+
+  <body>
+    <div class="container">
+      <div class="brand-header">
+        <div>
+          <h1 class="brand-title">Reading Cafe Library</h1>
+          <p class="brand-subtitle">Membership Management Portal</p>
+        </div>
+        <div class="brand-subtitle"></div>
+      </div>
+      <div class="tabs">
+        <div class="tab active" onclick="switchTab('reg')" id="t-reg">
+          Membership Desk
+        </div>
+        <div class="tab" onclick="switchTab('admin')" id="t-admin">
+          Admin Portal
+        </div>
+      </div>
+
+      <div id="regView" class="card">
+        <h2 id="formTitle">Membership Desk</h2>
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px">
+          <div>
+            <label style="font-size: 11px; font-weight: bold">Date *</label>
+            <input type="date" id="date" required />
+          </div>
+          <div>
+            <label style="font-size: 11px; font-weight: bold">Section *</label>
+            <select
+              id="section"
+              onchange="
+                buildSeatOptions();
+                updateMemberId();
+                checkDuplicateID();
+              "
+              required
+            >
+              <option value="">-- Choose Section --</option>
+              <option value="A">Section A - Fixed Seats 1 to 27</option>
+              <option value="B">Section B - Fixed Seats 1 to 31</option>
+              <option value="C">Section C - Floating / Random Seats</option>
+            </select>
+            <input type="hidden" id="memNo" />
+          </div>
+        </div>
+        <input type="text" id="name" placeholder="Full Name" required />
+        <input
+          type="text"
+          id="contact"
+          placeholder="WhatsApp Number"
+          required
+        />
+        <div class="form-grid">
+          <div>
+            <label style="font-size: 11px; font-weight: bold"
+              >Reading Room Seat *</label
+            >
+            <select
+              id="seatNo"
+              onchange="
+                updateMemberId();
+                checkDuplicateID();
+              "
+              required
+            >
+              <option value="">-- Select Section First --</option>
+            </select>
+            <div id="id-warning">This section/seat is already assigned.</div>
+          </div>
+          <input
+            type="text"
+            id="memberCodePreview"
+            class="readonly-field"
+            placeholder="Auto Member ID"
+            readonly
+          />
+        </div>
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px">
+          <select
+            id="package"
+            onchange="
+              updatePlanAmount();
+              updateExpiryPreview();
+            "
+            required
+          >
+            <option value="">-- Choose Membership Plan --</option>
+            <option value="1" data-amount="2499">1 Month</option>
+            <option value="3" data-amount="6999">3 Months</option>
+            <option value="6" data-amount="1399">6 Months</option>
+            <option value="12" data-amount="2699">12 Months</option>
+          </select>
+          <select id="payMode" required>
+            <option value="">-- Payment Mode --</option>
+            <option value="Cash">Cash</option>
+            <option value="Online">Online</option>
+          </select>
+        </div>
+        <div class="form-grid">
+          <div>
+            <label style="font-size: 11px; font-weight: bold"
+              >Monthly Payment (Rs.) *</label
+            >
+            <input
+              type="number"
+              id="membershipFee"
+              placeholder="Monthly Payment (Rs.)"
+              oninput="updateTotalAmount()"
+              required
+            />
+          </div>
+          <div>
+            <label style="font-size: 11px; font-weight: bold"
+              >Security Deposit (Rs. 500)? *</label
+            >
+            <select id="securityAmount" onchange="updateTotalAmount()" required>
+              <option value="500">Yes</option>
+              <option value="0">No</option>
+            </select>
+          </div>
+        </div>
+        <input
+          type="number"
+          id="amt"
+          class="readonly-field"
+          placeholder="Total Payable (Rs.)"
+          required
+          readonly
+        />
+        <div class="file-grid">
+          <div>
+            <label style="font-size: 11px; font-weight: bold"
+              >Aadhar Front</label
+            >
+            <input type="file" id="aadharFront" accept="image/*,.pdf" />
+          </div>
+          <div>
+            <label style="font-size: 11px; font-weight: bold"
+              >Aadhar Back</label
+            >
+            <input type="file" id="aadharBack" accept="image/*,.pdf" />
+          </div>
+        </div>
+        <div
+          id="expiryPreview"
+          style="
+            text-align: center;
+            font-weight: bold;
+            color: var(--primary);
+            background: #eef2ff;
+            padding: 10px;
+            border-radius: 8px;
+            margin: 10px 0;
+            border: 1px dashed var(--primary);
+          "
+        ></div>
+        <button onclick="saveToCloud()" id="saveBtn">Save Record</button>
+        <button
+          onclick="resetForm()"
+          style="background: #64748b; margin-top: 5px"
+        >
+          Clear Form
+        </button>
+        <p id="status" style="text-align: center; font-weight: bold"></p>
+
+        <div
+          id="renewalDeskPanel"
+          style="
+            background: #fffaf2;
+            border: 1px solid #e4c899;
+            border-radius: 8px;
+            padding: 15px;
+            margin-top: 20px;
+          "
+        >
+          <div
+            style="
+              display: flex;
+              justify-content: space-between;
+              align-items: center;
+              gap: 10px;
+              margin-bottom: 10px;
+              flex-wrap: wrap;
+            "
+          >
+            <h3 style="color: var(--primary); margin: 0">Renewal Due</h3>
+            <div class="renewal-toolbar">
+              <input
+                type="date"
+                id="reminderDatePicker"
+                class="renewal-picker"
+                onchange="changeReminderDateFromPicker()"
+              />
+              <div class="renewal-date-chip">
+                <span id="todayDateLabel" class="renewal-current-date"></span>
+                <button
+                  type="button"
+                  class="calendar-btn"
+                  onclick="openReminderCalendar()"
+                  aria-label="Choose renewal date"
+                >
+                  📅
+                </button>
+              </div>
+            </div>
+          </div>
+          <div class="scroll-table">
+            <table>
+              <thead>
+                <tr>
+                  <th>Name</th>
+                  <th>ID</th>
+                  <th>Expiry</th>
+                  <th>Action</th>
+                </tr>
+              </thead>
+              <tbody id="publicAlertBody"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <div id="adminView" class="hidden">
+        <div class="card">
+          <div class="admin-subtabs">
+            <button
+              class="admin-subtab active"
+              id="adminAnalyticsTab"
+              onclick="switchAdminSection('analytics')"
+            >
+              Membership Analytics
+            </button>
+            <button
+              class="admin-subtab"
+              id="adminExpensesTab"
+              onclick="switchAdminSection('expenses')"
+            >
+              Library Expenses
+            </button>
+          </div>
+
+          <div id="analyticsSection">
+            <button
+              onclick="
+                window.open(
+                  'https://docs.google.com/spreadsheets/d/1g2kvzYIKkbzoKTSlJ-MMbLNCvqV9HJj5m7C6lkzSkyM/edit?usp=sharing',
+                  '_blank',
+                )
+              "
+              style="background-color: var(--sheet); margin-bottom: 10px"
+            >
+              View Google Sheet (Cloud Database)
+            </button>
+            <button onclick="downloadRenewalPDF()" class="btn-pdf">
+              Download Monthly Renewal Due List (PDF)
+            </button>
+
+            <div class="summary-grid">
+              <div class="summary-box">
+                <span id="monthNameLabel">Month</span> Total<br /><b
+                  id="monthCol"
+                  style="color: green; font-size: 22px"
+                  >Rs. 0</b
+                >
+              </div>
+              <div class="summary-box">
+                Today's Total<br /><b
+                  id="todayCol"
+                  style="color: #1a2a6c; font-size: 22px"
+                  >Rs. 0</b
+                >
+              </div>
+            </div>
+
+            <div class="month-nav" id="monthNav"></div>
+
+            <input
+              type="text"
+              id="search"
+              placeholder="Search by name, section, or seat..."
+              onkeyup="renderAdmin()"
+              style="margin-bottom: 15px; border: 2px solid var(--primary)"
+            />
+            <div class="sort-controls">
+              <select id="adminSort" onchange="renderAdmin()">
+                <option value="date-desc">Sort: Date Newest</option>
+                <option value="date-asc">Sort: Date Oldest</option>
+                <option value="section">Sort: Section Wise</option>
+                <option value="seat">Sort: Seat Number Wise</option>
+              </select>
+            </div>
+            <div class="scroll-table">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Date</th>
+                    <th>Name</th>
+                    <th>Section</th>
+                    <th>Seat</th>
+                    <th>Plan</th>
+                    <th>Monthly</th>
+                    <th>Security</th>
+                    <th>Total</th>
+                    <th>Contact</th>
+                    <th>Aadhar</th>
+                    <th>Expiry</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody id="memberListBody"></tbody>
+              </table>
+            </div>
+          </div>
+
+          <div id="expensesSection" class="hidden">
+            <div class="form-grid">
+              <div>
+                <label style="font-size: 11px; font-weight: bold"
+                  >Expense Date *</label
+                >
+                <input type="date" id="expenseDate" />
+              </div>
+              <div>
+                <label style="font-size: 11px; font-weight: bold"
+                  >Amount (Rs.) *</label
+                >
+                <input
+                  type="number"
+                  id="expenseAmount"
+                  placeholder="Expense Amount"
+                />
+              </div>
+            </div>
+
+            <div class="form-grid">
+              <div>
+                <label style="font-size: 11px; font-weight: bold"
+                  >Expense Head *</label
+                >
+                <input
+                  type="text"
+                  id="expenseTitle"
+                  placeholder="Books / Newspapers / Electricity"
+                />
+              </div>
+              <div>
+                <label style="font-size: 11px; font-weight: bold"
+                  >Payment Mode *</label
+                >
+                <select id="expensePayMode">
+                  <option value="">-- Payment Mode --</option>
+                  <option value="Cash">Cash</option>
+                  <option value="Online">Online</option>
+                  <option value="Card">Card</option>
+                  <option value="UPI">UPI</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="form-grid">
+              <div>
+                <label style="font-size: 11px; font-weight: bold"
+                  >Category</label
+                >
+                <select id="expenseCategory">
+                  <option value="Books">Books</option>
+                  <option value="Newspapers">Newspapers</option>
+                  <option value="Rent">Rent</option>
+                  <option value="Electricity">Electricity</option>
+                  <option value="Internet">Internet</option>
+                  <option value="Staff">Staff</option>
+                  <option value="Furniture">Furniture</option>
+                  <option value="Maintenance">Maintenance</option>
+                </select>
+              </div>
+              <div>
+                <label style="font-size: 11px; font-weight: bold"
+                  >Upload Bill</label
+                >
+                <input type="file" id="expenseBill" accept="image/*,.pdf" />
+              </div>
+            </div>
+
+            <div class="muted-note">
+              Bill upload is optional. Uploaded bills are currently stored only
+              in this browser.
+            </div>
+
+            <button onclick="saveExpense()">Save Expense</button>
+            <button
+              onclick="resetExpenseForm()"
+              style="background: #64748b; margin-top: 5px"
+            >
+              Clear Expense Form
+            </button>
+            <p
+              id="expenseStatus"
+              style="text-align: center; font-weight: bold"
+            ></p>
+
+            <div class="summary-grid">
+              <div class="summary-box">
+                <span id="expenseMonthNameLabel">Month</span> Expense<br /><b
+                  id="expenseMonthTotal"
+                  style="color: var(--danger); font-size: 22px"
+                  >Rs. 0</b
+                >
+              </div>
+              <div class="summary-box">
+                Today's Expense<br /><b
+                  id="expenseTodayTotal"
+                  style="color: #b45309; font-size: 22px"
+                  >Rs. 0</b
+                >
+              </div>
+              <div class="summary-box">
+                Net Collection<br /><b
+                  id="netCollectionTotal"
+                  style="color: var(--success); font-size: 22px"
+                  >Rs. 0</b
+                >
+              </div>
+            </div>
+
+            <div class="month-nav" id="expenseMonthNav"></div>
+            <input
+              type="text"
+              id="expenseSearch"
+              placeholder="Search expense head or category..."
+              onkeyup="renderExpenses()"
+              style="margin-bottom: 15px; border: 2px solid var(--danger)"
+            />
+            <div class="scroll-table">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Date</th>
+                    <th>Head</th>
+                    <th>Category</th>
+                    <th>Mode</th>
+                    <th>Amount</th>
+                    <th>Bill</th>
+                    <th>Action</th>
+                  </tr>
+                </thead>
+                <tbody id="expenseListBody"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      const CLOUD_URL =
+        "https://script.google.com/macros/s/AKfycbzkvkDzgRDLlIfBXL_1H-WfWSqaHeEYfq2JS3P5uS4ClVS8VK_9RGnV_-8JN-rEn9u2EA/exec";
+      const EXPENSE_STORAGE_KEY = "readingCafeLibraryExpenses";
+      const LIBRARY_NAME = "Reading Cafe Library";
+      const LIBRARY_ADDRESS =
+        "Building No. 2950, 1st Floor, Gali No-12, Near Shiv Mandir Chowk, South Patel Nagar, New Delhi 110008.";
+      const PLAN_AMOUNTS = {
+        1: 2499,
+        3: 6999,
+        6: 1399,
+        12: 2699,
+      };
+      const SECURITY_AMOUNT = 500;
+      const SECTION_SEATS = {
+        A: 27,
+        B: 31,
+        C: 0,
+      };
+      const BILL_LOGO_DATA_URL =
+        "data:image/jpeg;base64,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_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";
+
+      let cloudData = [];
+      let expenseData = [];
+      let editContext = null;
+      let isRenewalMode = false;
+      let reminderViewDate = new Date();
+      let selectedMonth = new Date().getMonth();
+      let selectedYear = new Date().getFullYear();
+
+      document.getElementById("date").valueAsDate = new Date();
+      document.getElementById("expenseDate").valueAsDate = new Date();
+      reminderViewDate.setHours(0, 0, 0, 0);
+      document.getElementById("reminderDatePicker").value = reminderViewDate
+        .toISOString()
+        .split("T")[0];
+      document.getElementById("todayDateLabel").innerText = formatDateDisplay(
+        new Date(),
+      );
+
+      function parseAnyDate(dateStr) {
+        if (!dateStr) return null;
+        if (dateStr instanceof Date) return dateStr;
+        if (typeof dateStr === "string" && dateStr.includes("/")) {
+          const parts = dateStr.split("/");
+          return new Date(parts[2], parts[0] - 1, parts[1]);
+        }
+        return new Date(dateStr);
+      }
+
+      function formatDateDisplay(dateStr) {
+        const dObj = parseAnyDate(dateStr);
+        if (!dObj || isNaN(dObj)) return dateStr;
+        return `${String(dObj.getDate()).padStart(2, "0")}/${String(dObj.getMonth() + 1).padStart(2, "0")}/${dObj.getFullYear()}`;
+      }
+
+      function formatCurrency(value) {
+        return "Rs. " + Number(value || 0).toLocaleString("en-IN");
+      }
+
+      function getSectionLabel(value) {
+        if (!value) return "";
+        return `Section ${value}`;
+      }
+
+      function getRecordSection(member) {
+        if (member.section) return String(member.section);
+        const idParts = String(member.memNo || "").split("-");
+        return idParts[0] || "";
+      }
+
+      function getRecordSeat(member) {
+        if (member.seatNo) return String(member.seatNo);
+        const idParts = String(member.memNo || "").split("-");
+        return idParts[1] || "";
+      }
+
+      function buildSeatOptions(selectedSeat = "") {
+        const section = document.getElementById("section").value;
+        const seatSelect = document.getElementById("seatNo");
+        seatSelect.innerHTML = "";
+
+        if (!section) {
+          seatSelect.innerHTML =
+            '<option value="">-- Select Section First --</option>';
+          updateMemberId();
+          return;
+        }
+
+        if (section === "C") {
+          seatSelect.innerHTML =
+            '<option value="Floating/Random">Floating / Random Seat</option>';
+          seatSelect.value = "Floating/Random";
+          updateMemberId();
+          return;
+        }
+
+        seatSelect.innerHTML =
+          '<option value="">-- Choose Seat No. --</option>';
+        for (let i = 1; i <= SECTION_SEATS[section]; i += 1) {
+          const option = document.createElement("option");
+          option.value = String(i);
+          option.textContent = `${section}-${i}`;
+          seatSelect.appendChild(option);
+        }
+        if (selectedSeat) seatSelect.value = String(selectedSeat);
+        updateMemberId();
+      }
+
+      function updateMemberId() {
+        const section = document.getElementById("section").value;
+        const seatNo = document.getElementById("seatNo").value;
+        const code =
+          section && seatNo
+            ? `${section}-${section === "C" ? "FLOATING" : seatNo}`
+            : "";
+        document.getElementById("memNo").value = code;
+        document.getElementById("memberCodePreview").value = code;
+        return code;
+      }
+
+      function updateTotalAmount() {
+        const fee = Number(document.getElementById("membershipFee").value || 0);
+        const security = Number(
+          document.getElementById("securityAmount").value || 0,
+        );
+        document.getElementById("amt").value =
+          fee || security ? fee + security : "";
+      }
+
+      function getAadharLink(label, dataUrl, fileName) {
+        if (!dataUrl) return "N/A";
+        const safeName = (fileName || label).replace(/"/g, "&quot;");
+        return `<a class="link-btn" href="${dataUrl}" download="${safeName}" target="_blank">${label}</a>`;
+      }
+
+      function getLatestMemberships() {
+        const latest = {};
+        cloudData.forEach((m) => {
+          const exp = parseAnyDate(m.expiry);
+          if (!exp || !m.memNo) return;
+          if (!latest[m.memNo] || exp > parseAnyDate(latest[m.memNo].expiry))
+            latest[m.memNo] = m;
+        });
+        return Object.values(latest);
+      }
+
+      function buildReminderMessage(member) {
+        return `Hello ${member.name || ""}, this is a reminder from Reading Cafe Library. Your library membership will expire on ${formatDateDisplay(member.expiry)}. Please renew before the expiry date to continue using the reading room and library facilities. Thank you!`;
+      }
+
+      function getReminderLink(member) {
+        if (!member.contact) return "#";
+        return `https://wa.me/91${member.contact.toString().replace(/\D/g, "")}?text=${encodeURIComponent(buildReminderMessage(member))}`;
+      }
+
+      function openReminderCalendar() {
+        const picker = document.getElementById("reminderDatePicker");
+        if (picker.showPicker) {
+          picker.showPicker();
+        } else {
+          picker.focus();
+          picker.click();
+        }
+      }
+
+      function changeReminderDateFromPicker() {
+        const pickerValue = document.getElementById("reminderDatePicker").value;
+        if (!pickerValue) return;
+        reminderViewDate = new Date(pickerValue);
+        reminderViewDate.setHours(0, 0, 0, 0);
+        renderUpcomingRenewals();
+      }
+
+      function renderUpcomingRenewals() {
+        const alertBody = document.getElementById("publicAlertBody");
+        const picker = document.getElementById("reminderDatePicker");
+        const targetDate = new Date(reminderViewDate);
+        targetDate.setHours(0, 0, 0, 0);
+        picker.value = targetDate.toISOString().split("T")[0];
+        document.getElementById("todayDateLabel").innerText =
+          formatDateDisplay(targetDate);
+        alertBody.innerHTML = "";
+
+        const upcomingMembers = getLatestMemberships()
+          .filter((member) => {
+            const expiry = parseAnyDate(member.expiry);
+            if (!expiry) return false;
+            expiry.setHours(0, 0, 0, 0);
+            return expiry.getTime() === targetDate.getTime();
+          })
+          .sort((a, b) => parseAnyDate(a.expiry) - parseAnyDate(b.expiry));
+
+        upcomingMembers.forEach((member) => {
+          const waLink = getReminderLink(member);
+          alertBody.innerHTML += `<tr>
+                <td><b>${member.name || ""}</b></td>
+                <td>${member.memNo || ""}</td>
+                <td><span class="badge-today">${formatDateDisplay(member.expiry)}</span></td>
+                <td>
+                    <button class="btn-action" style="background:var(--success)" onclick="renewFromAdmin('${member.memNo}')">Renew</button>
+                    <button class="btn-action" style="background:#25D366" onclick="window.open('${waLink}', '_blank')">Remind</button>
+                </td>
+            </tr>`;
+        });
+
+        if (!alertBody.innerHTML) {
+          alertBody.innerHTML =
+            '<tr><td colspan="4" style="text-align:center; color:#64748b;">No renewals on the selected date.</td></tr>';
+        }
+      }
+
+      function checkDuplicateID() {
+        updateMemberId();
+        const section = document.getElementById("section").value;
+        const seatNo = document.getElementById("seatNo").value;
+        const idInput = document.getElementById("memNo").value.trim();
+        const warning = document.getElementById("id-warning");
+        const saveBtn = document.getElementById("saveBtn");
+        if (editContext || isRenewalMode) {
+          warning.style.display = "none";
+          saveBtn.disabled = false;
+          return;
+        }
+        const isDuplicate =
+          section !== "C" &&
+          section &&
+          seatNo &&
+          getLatestMemberships().some(
+            (member) =>
+              String(member.section || "").trim() === section &&
+              String(member.seatNo || "").trim() === seatNo,
+          );
+        warning.style.display =
+          isDuplicate && idInput !== "" ? "block" : "none";
+        saveBtn.disabled = isDuplicate && idInput !== "";
+      }
+
+      function buildMonthNav() {
+        const months = [
+          "Jan",
+          "Feb",
+          "Mar",
+          "Apr",
+          "May",
+          "Jun",
+          "Jul",
+          "Aug",
+          "Sep",
+          "Oct",
+          "Nov",
+          "Dec",
+        ];
+        ["monthNav", "expenseMonthNav"].forEach((navId) => {
+          const nav = document.getElementById(navId);
+          nav.innerHTML = "";
+          months.forEach((m, i) => {
+            const btn = document.createElement("div");
+            btn.className = `month-pill ${i === selectedMonth ? "active" : ""}`;
+            btn.innerText = m;
+            btn.onclick = () => {
+              selectedMonth = i;
+              buildMonthNav();
+              renderAdmin();
+              renderExpenses();
+            };
+            nav.appendChild(btn);
+          });
+        });
+      }
+
+      function switchAdminSection(section) {
+        const isAnalytics = section === "analytics";
+        document
+          .getElementById("analyticsSection")
+          .classList.toggle("hidden", !isAnalytics);
+        document
+          .getElementById("expensesSection")
+          .classList.toggle("hidden", isAnalytics);
+        document
+          .getElementById("adminAnalyticsTab")
+          .classList.toggle("active", isAnalytics);
+        document
+          .getElementById("adminExpensesTab")
+          .classList.toggle("active", !isAnalytics);
+        if (!isAnalytics) renderExpenses();
+      }
+
+      function loadExpenses() {
+        try {
+          expenseData = JSON.parse(
+            localStorage.getItem(EXPENSE_STORAGE_KEY) || "[]",
+          );
+        } catch (e) {
+          expenseData = [];
+        }
+      }
+
+      function saveExpensesToStorage() {
+        localStorage.setItem(EXPENSE_STORAGE_KEY, JSON.stringify(expenseData));
+      }
+
+      function readBillFile(file) {
+        return new Promise((resolve, reject) => {
+          if (!file) {
+            resolve(null);
+            return;
+          }
+          const reader = new FileReader();
+          reader.onload = () =>
+            resolve({
+              name: file.name,
+              dataUrl: reader.result,
+              type: file.type,
+            });
+          reader.onerror = reject;
+          reader.readAsDataURL(file);
+        });
+      }
+
+      async function loadCloudData() {
+        const parsed = await loadCloudDataJsonp();
+        if (parsed && parsed.error) throw new Error(parsed.error);
+        if (parsed && parsed.status === "ERROR") {
+          throw new Error(parsed.message || "Cloud script returned an error.");
+        }
+        if (!Array.isArray(parsed)) {
+          throw new Error("Cloud script returned an unexpected response.");
+        }
+        return parsed;
+      }
+
+      function loadCloudDataJsonp() {
+        return new Promise((resolve, reject) => {
+          const callbackName = `readingCafeCloud_${Date.now()}_${Math.random()
+            .toString(36)
+            .slice(2)}`;
+          const script = document.createElement("script");
+          const cleanup = () => {
+            delete window[callbackName];
+            script.remove();
+          };
+          const timeout = setTimeout(() => {
+            cleanup();
+            reject(
+              new Error(
+                "Cloud script did not respond. Check Apps Script deployment and access.",
+              ),
+            );
+          }, 12000);
+
+          window[callbackName] = (data) => {
+            clearTimeout(timeout);
+            cleanup();
+            resolve(data);
+          };
+
+          script.onerror = () => {
+            clearTimeout(timeout);
+            cleanup();
+            reject(
+              new Error(
+                "Failed to load cloud data. Check the Apps Script web URL.",
+              ),
+            );
+          };
+          script.src = `${CLOUD_URL}?callback=${encodeURIComponent(
+            callbackName,
+          )}&_=${Date.now()}`;
+          document.body.appendChild(script);
+        });
+      }
+
+      async function fetchFromCloud() {
+        try {
+          cloudData = await loadCloudData();
+          renderUpcomingRenewals();
+          renderAdmin();
+        } catch (e) {
+          console.error("Sync Error", e);
+          const status = document.getElementById("status");
+          if (status) {
+            status.style.color = "var(--danger)";
+            status.innerText = e.message || "Unable to load cloud data.";
+          }
+          renderUpcomingRenewals();
+          renderAdmin();
+        }
+      }
+
+      function switchTab(t) {
+        if (t === "admin") {
+          const pin = prompt("Admin PIN:");
+          if (pin !== "1234") return;
+          loadExpenses();
+          fetchFromCloud();
+          renderExpenses();
+        }
+        document
+          .getElementById("regView")
+          .classList.toggle("hidden", t !== "reg");
+        document
+          .getElementById("adminView")
+          .classList.toggle("hidden", t !== "admin");
+        document
+          .getElementById("t-reg")
+          .classList.toggle("active", t === "reg");
+        document
+          .getElementById("t-admin")
+          .classList.toggle("active", t === "admin");
+      }
+
+      function getMonthIncomeTotal() {
+        const monthNames = [
+          "Jan",
+          "Feb",
+          "Mar",
+          "Apr",
+          "May",
+          "Jun",
+          "Jul",
+          "Aug",
+          "Sep",
+          "Oct",
+          "Nov",
+          "Dec",
+        ];
+        const targetMonthName = monthNames[selectedMonth];
+        return cloudData.reduce((sum, m) => {
+          const dObj = parseAnyDate(m.date);
+          if (!dObj) return sum;
+          const dateMatch =
+            dObj.getMonth() === selectedMonth &&
+            dObj.getFullYear() === selectedYear;
+          const sheetMatch =
+            m.cleanSheetName &&
+            m.cleanSheetName
+              .toLowerCase()
+              .includes(targetMonthName.toLowerCase());
+          return dateMatch || sheetMatch
+            ? sum + parseFloat(m.amount || 0)
+            : sum;
+        }, 0);
+      }
+
+      function renderAdmin() {
+        const listBody = document.getElementById("memberListBody");
+        const query = document.getElementById("search").value.toLowerCase();
+
+        const monthNames = [
+          "Jan",
+          "Feb",
+          "Mar",
+          "Apr",
+          "May",
+          "Jun",
+          "Jul",
+          "Aug",
+          "Sep",
+          "Oct",
+          "Nov",
+          "Dec",
+        ];
+        const targetMonthName = monthNames[selectedMonth];
+        document.getElementById("monthNameLabel").innerText = targetMonthName;
+
+        let monthTotal = 0,
+          todayTotal = 0;
+        listBody.innerHTML = "";
+
+        const now = new Date();
+        now.setHours(0, 0, 0, 0);
+        const todayStr = now.toDateString();
+
+        const sortMode = document.getElementById("adminSort").value;
+        const monthRecords = cloudData.filter((m) => {
+          const dObj = parseAnyDate(m.date);
+          const eObj = parseAnyDate(m.expiry);
+          if (!dObj || !eObj) return false;
+
+          const dateMatch =
+            dObj.getMonth() === selectedMonth &&
+            dObj.getFullYear() === selectedYear;
+          const sheetMatch =
+            m.cleanSheetName &&
+            m.cleanSheetName
+              .toLowerCase()
+              .includes(targetMonthName.toLowerCase());
+
+          return dateMatch || sheetMatch;
+        });
+
+        monthRecords.forEach((m) => {
+          const dObj = parseAnyDate(m.date);
+          monthTotal += parseFloat(m.amount || 0);
+
+          if (dObj.toDateString() === todayStr)
+            todayTotal += parseFloat(m.amount || 0);
+        });
+
+        monthRecords
+          .filter((m) => {
+            return (
+              (m.name || "").toLowerCase().includes(query) ||
+              (m.memNo || "").toString().toLowerCase().includes(query) ||
+              getRecordSection(m).toLowerCase().includes(query) ||
+              getRecordSeat(m).toLowerCase().includes(query)
+            );
+          })
+          .sort((a, b) => {
+            if (sortMode === "date-asc")
+              return parseAnyDate(a.date) - parseAnyDate(b.date);
+            if (sortMode === "section") {
+              const sectionCompare = getRecordSection(a).localeCompare(
+                getRecordSection(b),
+              );
+              if (sectionCompare) return sectionCompare;
+              return (
+                Number(getRecordSeat(a) || 9999) -
+                Number(getRecordSeat(b) || 9999)
+              );
+            }
+            if (sortMode === "seat")
+              return (
+                Number(getRecordSeat(a) || 9999) -
+                Number(getRecordSeat(b) || 9999)
+              );
+            return parseAnyDate(b.date) - parseAnyDate(a.date);
+          })
+          .forEach((m) => {
+            listBody.innerHTML += `<tr>
+                        <td>${formatDateDisplay(m.date)}</td>
+                        <td><b>${m.name || ""}</b></td>
+                        <td>${getSectionLabel(getRecordSection(m))}</td>
+                        <td>${getRecordSeat(m)}</td>
+                        <td>${getPlanLabel(m.package)}</td>
+                        <td>${formatCurrency(m.membershipFee || 0)}</td>
+                        <td>${formatCurrency(m.securityAmount || 0)}</td>
+                        <td>${formatCurrency(m.amount)}</td>
+                        <td><a href="https://wa.me/91${m.contact || ""}" target="_blank" style="color:var(--whatsapp); text-decoration:none; font-weight:bold;">${m.contact || ""}</a></td>
+                        <td>${getAadharLink("Front", m.aadharFrontDataUrl, m.aadharFrontName)} ${getAadharLink("Back", m.aadharBackDataUrl, m.aadharBackName)}</td>
+                        <td>${formatDateDisplay(m.expiry)}</td>
+                        <td>
+                          <button class="btn-action" style="background:var(--pdf)" onclick="downloadMembershipBill('${m.rowId}', '${m.sheetName}')">Bill PDF</button>
+                          <button class="btn-action" style="background:var(--info)" onclick="triggerEdit('${m.rowId}', '${m.sheetName}')">Edit</button>
+                        </td>
+                    </tr>`;
+          });
+
+        if (!listBody.innerHTML)
+          listBody.innerHTML =
+            '<tr><td colspan="12" style="text-align:center; color:#64748b;">No member records for this month.</td></tr>';
+
+        document.getElementById("monthCol").innerText =
+          formatCurrency(monthTotal);
+        document.getElementById("todayCol").innerText =
+          formatCurrency(todayTotal);
+        renderExpenses(monthTotal);
+      }
+
+      function renderExpenses(monthIncomeTotal = null) {
+        const listBody = document.getElementById("expenseListBody");
+        const query = document
+          .getElementById("expenseSearch")
+          .value.toLowerCase();
+        const monthNames = [
+          "Jan",
+          "Feb",
+          "Mar",
+          "Apr",
+          "May",
+          "Jun",
+          "Jul",
+          "Aug",
+          "Sep",
+          "Oct",
+          "Nov",
+          "Dec",
+        ];
+        const targetMonthName = monthNames[selectedMonth];
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        let monthExpense = 0,
+          todayExpense = 0;
+
+        document.getElementById("expenseMonthNameLabel").innerText =
+          targetMonthName;
+        listBody.innerHTML = "";
+
+        const sortedExpenses = [...expenseData].sort(
+          (a, b) => parseAnyDate(b.date) - parseAnyDate(a.date),
+        );
+        sortedExpenses.forEach((expense) => {
+          const dObj = parseAnyDate(expense.date);
+          if (!dObj) return;
+
+          const matchesMonth =
+            dObj.getMonth() === selectedMonth &&
+            dObj.getFullYear() === selectedYear;
+          if (matchesMonth) monthExpense += parseFloat(expense.amount || 0);
+          if (dObj.toDateString() === today.toDateString())
+            todayExpense += parseFloat(expense.amount || 0);
+
+          const searchMatch =
+            !query ||
+            (expense.title || "").toLowerCase().includes(query) ||
+            (expense.category || "").toLowerCase().includes(query);
+          if (matchesMonth && searchMatch) {
+            const billLink = expense.billDataUrl
+              ? `<a class="link-btn" href="${expense.billDataUrl}" download="${expense.billName || "bill"}" target="_blank">Open Bill</a>`
+              : '<span style="color:#94a3b8;">No Bill</span>';
+            listBody.innerHTML += `<tr>
+                    <td>${formatDateDisplay(expense.date)}</td>
+                    <td><b>${expense.title}</b></td>
+                    <td>${expense.category || "Books"}</td>
+                    <td>${expense.payMode}</td>
+                    <td>${formatCurrency(expense.amount)}</td>
+                    <td>${billLink}</td>
+                    <td><button class="btn-action danger-btn" onclick="deleteExpense('${expense.id}')">Delete</button></td>
+                </tr>`;
+          }
+        });
+
+        const incomeValue =
+          monthIncomeTotal !== null ? monthIncomeTotal : getMonthIncomeTotal();
+        document.getElementById("expenseMonthTotal").innerText =
+          formatCurrency(monthExpense);
+        document.getElementById("expenseTodayTotal").innerText =
+          formatCurrency(todayExpense);
+        document.getElementById("netCollectionTotal").innerText =
+          formatCurrency(incomeValue - monthExpense);
+
+        if (!listBody.innerHTML)
+          listBody.innerHTML =
+            '<tr><td colspan="7" style="text-align:center; color:#64748b;">No expense records for this month.</td></tr>';
+      }
+
+      async function saveToCloud() {
+        updateMemberId();
+        updateTotalAmount();
+        const aadharFront = await readBillFile(
+          document.getElementById("aadharFront").files[0],
+        );
+        const aadharBack = await readBillFile(
+          document.getElementById("aadharBack").files[0],
+        );
+        const data = {
+          action: editContext ? "EDIT" : "SAVE",
+          rowId: editContext ? editContext.rowId : null,
+          sheetName: editContext ? editContext.sheetName : null,
+          date: document.getElementById("date").value,
+          name: document.getElementById("name").value,
+          memNo: document.getElementById("memNo").value,
+          section: document.getElementById("section").value,
+          package: document.getElementById("package").value,
+          payMode: document.getElementById("payMode").value,
+          membershipFee: document.getElementById("membershipFee").value,
+          securityAmount: document.getElementById("securityAmount").value,
+          amount: document.getElementById("amt").value,
+          contact: document.getElementById("contact").value,
+          seatNo: document.getElementById("seatNo").value,
+          aadharFrontName: aadharFront ? aadharFront.name : "",
+          aadharFrontDataUrl: aadharFront ? aadharFront.dataUrl : "",
+          aadharBackName: aadharBack ? aadharBack.name : "",
+          aadharBackDataUrl: aadharBack ? aadharBack.dataUrl : "",
+          expiry: updateExpiryPreview(),
+        };
+        const status = document.getElementById("status");
+        const saveBtn = document.getElementById("saveBtn");
+        if (
+          !data.date ||
+          !data.memNo ||
+          !data.section ||
+          !data.seatNo ||
+          !data.name ||
+          !data.contact ||
+          !data.package ||
+          !data.payMode ||
+          !data.membershipFee ||
+          !data.securityAmount ||
+          !data.amount ||
+          !data.expiry
+        ) {
+          status.style.color = "var(--danger)";
+          status.innerText = "Please fill all required membership fields.";
+          return;
+        }
+
+        status.style.color = "var(--primary)";
+        status.innerText = "Syncing...";
+        saveBtn.disabled = true;
+
+        try {
+          await fetch(CLOUD_URL, {
+            method: "POST",
+            mode: "no-cors",
+            body: JSON.stringify(data),
+          });
+
+          await new Promise((resolve) => setTimeout(resolve, 1500));
+          cloudData = await loadCloudData();
+          const wasSaved = cloudData.some((item) => {
+            return (
+              String(item.memNo || "").trim() === String(data.memNo).trim() &&
+              String(item.date || "") === String(data.date) &&
+              String(item.name || "").trim() === String(data.name).trim() &&
+              String(item.expiry || "") === String(data.expiry)
+            );
+          });
+
+          if (!wasSaved) {
+            blockNewRowError();
+          }
+
+          renderUpcomingRenewals();
+          renderAdmin();
+          resetForm();
+          status.style.color = "var(--success)";
+          status.innerText = "Record saved to Google Sheet.";
+        } catch (e) {
+          console.error("Save Error", e);
+          status.style.color = "var(--danger)";
+          status.innerText =
+            e.message || "Save failed. Please check Apps Script.";
+        } finally {
+          saveBtn.disabled = false;
+          checkDuplicateID();
+        }
+      }
+
+      function blockNewRowError() {
+        throw new Error(
+          "Save was sent, but the new record was not found in the cloud data.",
+        );
+      }
+
+      async function saveExpense() {
+        const expenseDate = document.getElementById("expenseDate").value;
+        const expenseTitle = document
+          .getElementById("expenseTitle")
+          .value.trim();
+        const expenseAmount = document.getElementById("expenseAmount").value;
+        const expensePayMode = document.getElementById("expensePayMode").value;
+        const expenseCategory =
+          document.getElementById("expenseCategory").value;
+        const billFile = document.getElementById("expenseBill").files[0];
+        const status = document.getElementById("expenseStatus");
+
+        if (
+          !expenseDate ||
+          !expenseTitle ||
+          !expenseAmount ||
+          !expensePayMode
+        ) {
+          status.style.color = "var(--danger)";
+          status.innerText =
+            "Please fill expense date, head, amount, and payment mode.";
+          return;
+        }
+
+        status.style.color = "var(--primary)";
+        status.innerText = "Saving expense...";
+
+        try {
+          const bill = await readBillFile(billFile);
+          expenseData.push({
+            id: `exp-${Date.now()}`,
+            date: expenseDate,
+            title: expenseTitle,
+            amount: expenseAmount,
+            payMode: expensePayMode,
+            category: expenseCategory,
+            billName: bill ? bill.name : "",
+            billDataUrl: bill ? bill.dataUrl : "",
+            billType: bill ? bill.type : "",
+          });
+          saveExpensesToStorage();
+          resetExpenseForm();
+          status.style.color = "var(--success)";
+          status.innerText = "Expense saved successfully.";
+          renderExpenses();
+        } catch (e) {
+          status.style.color = "var(--danger)";
+          status.innerText = "Bill upload failed. Please try a smaller file.";
+        }
+      }
+
+      function deleteExpense(id) {
+        if (!confirm("Delete this expense record?")) return;
+        expenseData = expenseData.filter((item) => item.id !== id);
+        saveExpensesToStorage();
+        renderExpenses();
+      }
+
+      function triggerEdit(rowId, sheetName) {
+        const m = cloudData.find(
+          (item) => item.rowId == rowId && item.sheetName == sheetName,
+        );
+        if (!m) return;
+        editContext = { rowId, sheetName };
+        isRenewalMode = false;
+        document.getElementById("name").value = m.name;
+        document.getElementById("contact").value = m.contact;
+        document.getElementById("section").value = getRecordSection(m);
+        buildSeatOptions(getRecordSeat(m));
+        updateMemberId();
+        document.getElementById("package").value = m.package;
+        document.getElementById("payMode").value = m.payMode || "";
+        document.getElementById("membershipFee").value =
+          m.membershipFee || PLAN_AMOUNTS[m.package] || "";
+        document.getElementById("securityAmount").value =
+          m.securityAmount !== undefined ? String(m.securityAmount) : "500";
+        document.getElementById("amt").value = m.amount;
+        document.getElementById("date").value = new Date(m.date)
+          .toISOString()
+          .split("T")[0];
+        switchTab("reg");
+      }
+
+      function renewFromAdmin(id) {
+        const m = cloudData.find((item) => item.memNo == id);
+        if (!m) return;
+        editContext = null;
+        isRenewalMode = true;
+        document.getElementById("name").value = m.name;
+        document.getElementById("contact").value = m.contact;
+        document.getElementById("section").value = getRecordSection(m);
+        buildSeatOptions(getRecordSeat(m));
+        updateMemberId();
+        document.getElementById("package").value = m.package;
+        document.getElementById("payMode").value = "";
+        updatePlanAmount();
+        document.getElementById("date").valueAsDate = new Date();
+        updateExpiryPreview();
+        switchTab("reg");
+      }
+
+      function updateExpiryPreview() {
+        const pkg = document.getElementById("package").value;
+        const joinDate = document.getElementById("date").value;
+        if (!pkg || !joinDate) return "";
+        let d = new Date(joinDate);
+        let months = parseInt((pkg.match(/\d+/) || [1])[0], 10);
+        d.setMonth(d.getMonth() + months);
+        const exp = d.toISOString().split("T")[0];
+        document.getElementById("expiryPreview").innerText =
+          "EXPIRY: " + formatDateDisplay(exp);
+        return exp;
+      }
+
+      function getPlanLabel(value) {
+        if (!value) return "";
+        const months = parseInt((String(value).match(/\d+/) || [value])[0], 10);
+        if (!months) return value;
+        return `${months} Month${months === 1 ? "" : "s"}`;
+      }
+
+      function updatePlanAmount() {
+        const pkg = document.getElementById("package").value;
+        const amount = PLAN_AMOUNTS[pkg];
+        document.getElementById("membershipFee").value = amount || "";
+        document.getElementById("securityAmount").value = "500";
+        updateTotalAmount();
+      }
+
+      function resetForm() {
+        editContext = null;
+        isRenewalMode = false;
+        [
+          "name",
+          "memNo",
+          "amt",
+          "contact",
+          "seatNo",
+          "section",
+          "memberCodePreview",
+          "membershipFee",
+          "package",
+          "payMode",
+        ].forEach((id) => (document.getElementById(id).value = ""));
+        document.getElementById("securityAmount").value = "500";
+        document.getElementById("aadharFront").value = "";
+        document.getElementById("aadharBack").value = "";
+        buildSeatOptions();
+        document.getElementById("date").valueAsDate = new Date();
+        document.getElementById("expiryPreview").innerText = "";
+        checkDuplicateID();
+      }
+
+      function resetExpenseForm() {
+        document.getElementById("expenseDate").valueAsDate = new Date();
+        document.getElementById("expenseTitle").value = "";
+        document.getElementById("expenseAmount").value = "";
+        document.getElementById("expensePayMode").value = "";
+        document.getElementById("expenseCategory").value = "Books";
+        document.getElementById("expenseBill").value = "";
+      }
+
+      function downloadMembershipBill(rowId, sheetName) {
+        const member = cloudData.find(
+          (item) => item.rowId == rowId && item.sheetName == sheetName,
+        );
+        if (!member) {
+          alert("Member record not found.");
+          return;
+        }
+
+        const { jsPDF } = window.jspdf;
+        const doc = new jsPDF();
+        const billDate = formatDateDisplay(member.date);
+        const expiryDate = formatDateDisplay(member.expiry);
+        const packageLabel = getPlanLabel(member.package);
+        const amountLabel = formatCurrency(member.amount);
+
+        doc.setFillColor(250, 247, 242);
+        doc.roundedRect(12, 12, 186, 270, 6, 6, "F");
+        doc.addImage(BILL_LOGO_DATA_URL, "JPEG", 18, 18, 30, 30);
+
+        doc.setFont("helvetica", "bold");
+        doc.setTextColor(59, 42, 31);
+        doc.setFontSize(20);
+        doc.text(LIBRARY_NAME, 54, 28);
+
+        doc.setFont("helvetica", "normal");
+        doc.setFontSize(10);
+        doc.setTextColor(71, 85, 105);
+        const addressLines = doc.splitTextToSize(LIBRARY_ADDRESS, 130);
+        doc.text(addressLines, 54, 35);
+
+        doc.setDrawColor(203, 213, 225);
+        doc.line(18, 54, 192, 54);
+
+        doc.setFont("helvetica", "bold");
+        doc.setFontSize(18);
+        doc.setTextColor(17, 24, 39);
+        doc.text("Membership Bill", 18, 66);
+
+        doc.setFontSize(10);
+        doc.setTextColor(100, 116, 139);
+        doc.text(`Bill Date: ${billDate}`, 18, 74);
+        doc.text(`Member ID: ${member.memNo || ""}`, 145, 74);
+
+        doc.autoTable({
+          startY: 82,
+          theme: "grid",
+          head: [["Field", "Details"]],
+          body: [
+            ["Member Name", member.name || ""],
+            ["Contact Number", member.contact || "N/A"],
+            ["Reading Room Seat No.", member.seatNo || "N/A"],
+            ["Membership Plan", packageLabel],
+            ["Payment Mode", member.payMode || "N/A"],
+            ["Joining / Renewal Date", billDate],
+            ["Membership Expiry", expiryDate],
+            ["Amount Paid", amountLabel],
+          ],
+          headStyles: { fillColor: [59, 42, 31] },
+          styles: { fontSize: 11, cellPadding: 4 },
+          columnStyles: {
+            0: { fontStyle: "bold", cellWidth: 62 },
+            1: { cellWidth: 108 },
+          },
+        });
+
+        const finalY = doc.lastAutoTable.finalY || 150;
+        doc.setFont("helvetica", "normal");
+        doc.setFontSize(10);
+        doc.setTextColor(71, 85, 105);
+        doc.text(
+          "Thank you for choosing Reading Cafe Library.",
+          18,
+          finalY + 18,
+        );
+        doc.setFont("helvetica", "normal");
+        doc.setFontSize(10);
+        doc.setTextColor(71, 85, 105);
+        doc.text(
+          "Membership fees, once paid, are non-refundable under any circumstances.",
+          18,
+          finalY + 28,
+        );
+        doc.text(
+          "Fees will not be adjusted or compensated for missed reading room usage.",
+          18,
+          finalY + 36,
+        );
+        doc.text(
+          "Seat allocation and library access remain subject to management rules.",
+          18,
+          finalY + 44,
+        );
+
+        const safeName = (member.name || "member").replace(/[^\w\-]+/g, "_");
+        doc.save(
+          `Reading_Cafe_Library_Bill_${safeName}_${member.memNo || "ID"}.pdf`,
+        );
+      }
+
+      function downloadRenewalPDF() {
+        const { jsPDF } = window.jspdf;
+        const doc = new jsPDF();
+        const monthNames = [
+          "Jan",
+          "Feb",
+          "Mar",
+          "Apr",
+          "May",
+          "Jun",
+          "Jul",
+          "Aug",
+          "Sep",
+          "Oct",
+          "Nov",
+          "Dec",
+        ];
+        const currentMonthName = monthNames[selectedMonth];
+
+        doc.setFontSize(18);
+        doc.text("Reading Cafe Library", 105, 15, { align: "center" });
+        doc.setFontSize(12);
+        doc.text(
+          `Renewal List for ${currentMonthName} ${selectedYear}`,
+          105,
+          22,
+          { align: "center" },
+        );
+
+        const renewalData = [];
+        const latest = {};
+        cloudData.forEach((m) => {
+          const exp = parseAnyDate(m.expiry);
+          if (!latest[m.memNo] || exp > parseAnyDate(latest[m.memNo].expiry))
+            latest[m.memNo] = m;
+        });
+
+        Object.values(latest).forEach((m) => {
+          const eObj = parseAnyDate(m.expiry);
+          if (
+            eObj &&
+            eObj.getMonth() === selectedMonth &&
+            eObj.getFullYear() === selectedYear
+          ) {
+            renewalData.push([
+              m.memNo,
+              m.name,
+              m.contact || "N/A",
+              formatDateDisplay(m.expiry),
+            ]);
+          }
+        });
+
+        renewalData.sort(
+          (a, b) =>
+            new Date(a[3].split("/").reverse().join("-")) -
+            new Date(b[3].split("/").reverse().join("-")),
+        );
+        if (renewalData.length === 0) {
+          alert("No memberships expiring in the selected month.");
+          return;
+        }
+
+        doc.autoTable({
+          head: [["Member ID", "Name", "Contact", "Expiry Date"]],
+          body: renewalData,
+          startY: 30,
+          theme: "grid",
+          headStyles: { fillColor: [59, 42, 31] },
+          styles: { fontSize: 10 },
+        });
+
+        doc.save(
+          `Reading_Cafe_Renewals_${currentMonthName}_${selectedYear}.pdf`,
+        );
+      }
+
+      window.onload = () => {
+        buildMonthNav();
+        loadExpenses();
+        fetchFromCloud();
+        renderExpenses();
+      };
+    </script>
+  </body>
+</html>
