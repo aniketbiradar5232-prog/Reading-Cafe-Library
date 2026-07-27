@@ -386,7 +386,6 @@
               <option value="B">Section B - Fixed Seats 1 to 31</option>
               <option value="C">Section C - Floating / Random Seats</option>
             </select>
-            <input type="hidden" id="memNo" />
           </div>
         </div>
         <input type="text" id="name" placeholder="Full Name" required />
@@ -411,15 +410,19 @@
             >
               <option value="">-- Select Section First --</option>
             </select>
-            <div id="id-warning">This section/seat is already assigned.</div>
+            <div id="id-warning">Seats may be shared by more than one member.</div>
           </div>
-          <input
-            type="text"
-            id="memberCodePreview"
-            class="readonly-field"
-            placeholder="Auto Member ID"
-            readonly
-          />
+          <div>
+            <label style="font-size: 11px; font-weight: bold"
+              >Membership Number *</label
+            >
+            <input
+              type="text"
+              id="memNo"
+              placeholder="Enter Membership Number"
+              required
+            />
+          </div>
         </div>
         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px">
           <select
@@ -473,20 +476,7 @@
           required
           readonly
         />
-        <div class="file-grid">
-          <div>
-            <label style="font-size: 11px; font-weight: bold"
-              >Aadhar Front (Optional)</label
-            >
-            <input type="file" id="aadharFront" accept="image/*,.pdf" />
-          </div>
-          <div>
-            <label style="font-size: 11px; font-weight: bold"
-              >Aadhar Back (Optional)</label
-            >
-            <input type="file" id="aadharBack" accept="image/*,.pdf" />
-          </div>
-        </div>
+        <input type="text" id="aadharNo" placeholder="Aadhaar Card Number" inputmode="numeric" maxlength="12" />
         <div
           id="expiryPreview"
           style="
@@ -643,12 +633,13 @@
                     <th>Name</th>
                     <th>Section</th>
                     <th>Seat</th>
+                    <th>Membership No.</th>
                     <th>Plan</th>
                     <th>Monthly</th>
                     <th>Security</th>
                     <th>Total</th>
                     <th>Contact</th>
-                    <th>Aadhar</th>
+                    <th>Aadhar No.</th>
                     <th>Expiry</th>
                     <th>Actions</th>
                   </tr>
@@ -802,7 +793,7 @@
       // PASTE YOUR GOOGLE APPS SCRIPT WEB APP URL IN THE QUOTES BELOW:
       // =========================================================================
       const CONFIG_APPS_SCRIPT_URL =
-        "https://script.google.com/macros/s/AKfycbzkvkDzgRDLlIfBXL_1H-WfWSqaHeEYfq2JS3P5uS4ClVS8VK_9RGnV_-8JN-rEn9u2EA/exec";
+        "https://script.google.com/macros/s/AKfycbxqpyxf3-Dd2xURy7yLUoambKm86tNNgWkOU76j2rR9h_aS2uCF-Jlfd1f5DvqfMrThcg/exec";
       // =========================================================================
 
       const CLOUD_URL = CONFIG_APPS_SCRIPT_URL;
@@ -823,7 +814,7 @@
         C: 0,
       };
       const BILL_LOGO_DATA_URL =
-        "data:image/jpeg;base64,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";
+        "data:image/jpeg;base64,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";
 
       let cloudData = [];
       let expenseData = [];
@@ -848,7 +839,12 @@
         if (dateStr instanceof Date) return dateStr;
         if (typeof dateStr === "string" && dateStr.includes("/")) {
           const parts = dateStr.split("/");
-          return new Date(parts[2], parts[0] - 1, parts[1]);
+          if (parts.length !== 3) return null;
+          // Saved spreadsheet dates use the Indian DD/MM/YYYY convention.
+          // Also accept YYYY/MM/DD if an older tab uses that layout.
+          if (parts[0].length === 4)
+            return new Date(parts[0], Number(parts[1]) - 1, parts[2]);
+          return new Date(parts[2], Number(parts[1]) - 1, parts[0]);
         }
         return new Date(dateStr);
       }
@@ -870,6 +866,7 @@
 
       function getRecordSection(member) {
         if (member.section) return String(member.section);
+        if (String(member.seatNo || "").toLowerCase().includes("floating")) return "C";
         const idParts = String(member.memNo || "").split("-");
         return idParts[0] || "";
       }
@@ -913,15 +910,9 @@
       }
 
       function updateMemberId() {
-        const section = document.getElementById("section").value;
-        const seatNo = document.getElementById("seatNo").value;
-        const code =
-          section && seatNo
-            ? `${section}-${section === "C" ? "FLOATING" : seatNo}`
-            : "";
-        document.getElementById("memNo").value = code;
-        document.getElementById("memberCodePreview").value = code;
-        return code;
+        // Membership numbers are entered manually for every section. Seats can
+        // be shared, so a selected seat must never replace this value.
+        return document.getElementById("memNo").value;
       }
 
       function updateTotalAmount() {
@@ -1000,7 +991,7 @@
           const waLink = getReminderLink(member);
           alertBody.innerHTML += `<tr>
                 <td><b>${member.name || ""}</b></td>
-                <td>${member.memNo || ""}</td>
+                <td>${getRecordSeat(member) || ""}</td>
                 <td><span class="badge-today">${formatDateDisplay(member.expiry)}</span></td>
                 <td>
                     <button class="btn-action" style="background:var(--success)" onclick="renewFromAdmin('${member.memNo}')">Renew</button>
@@ -1017,28 +1008,12 @@
 
       function checkDuplicateID() {
         updateMemberId();
-        const section = document.getElementById("section").value;
-        const seatNo = document.getElementById("seatNo").value;
-        const idInput = document.getElementById("memNo").value.trim();
         const warning = document.getElementById("id-warning");
         const saveBtn = document.getElementById("saveBtn");
-        if (editContext || isRenewalMode) {
-          warning.style.display = "none";
-          saveBtn.disabled = false;
-          return;
-        }
-        const isDuplicate =
-          section !== "C" &&
-          section &&
-          seatNo &&
-          getLatestMemberships().some(
-            (member) =>
-              String(member.section || "").trim() === section &&
-              String(member.seatNo || "").trim() === seatNo,
-          );
-        warning.style.display =
-          isDuplicate && idInput !== "" ? "block" : "none";
-        saveBtn.disabled = isDuplicate && idInput !== "";
+        // Seat numbers are intentionally not unique: more than one member may
+        // be allotted to the same seat.
+        warning.style.display = "none";
+        saveBtn.disabled = false;
       }
 
       function buildMonthNav() {
@@ -1059,6 +1034,14 @@
         ["monthNav", "expenseMonthNav"].forEach((navId) => {
           const nav = document.getElementById(navId);
           nav.innerHTML = "";
+          const previous = document.createElement("button");
+          previous.type = "button";
+          previous.className = "month-pill";
+          previous.style.width = "auto";
+          previous.innerText = "‹ Previous";
+          previous.onclick = () => changeSelectedMonth(-1);
+          nav.appendChild(previous);
+
           months.forEach((m, i) => {
             const btn = document.createElement("div");
             btn.className = `month-pill ${i === selectedMonth ? "active" : ""}`;
@@ -1071,7 +1054,24 @@
             };
             nav.appendChild(btn);
           });
+
+          const next = document.createElement("button");
+          next.type = "button";
+          next.className = "month-pill";
+          next.style.width = "auto";
+          next.innerText = "Next ›";
+          next.onclick = () => changeSelectedMonth(1);
+          nav.appendChild(next);
         });
+      }
+
+      function changeSelectedMonth(offset) {
+        const selectedDate = new Date(selectedYear, selectedMonth + offset, 1);
+        selectedMonth = selectedDate.getMonth();
+        selectedYear = selectedDate.getFullYear();
+        buildMonthNav();
+        renderAdmin();
+        renderExpenses();
       }
 
       function switchAdminSection(section) {
@@ -1124,15 +1124,17 @@
       }
 
       async function loadCloudData() {
-        const parsed = await loadCloudDataJsonp();
-        if (parsed && parsed.error) throw new Error(parsed.error);
-        if (parsed && parsed.status === "ERROR") {
-          throw new Error(parsed.message || "Cloud script returned an error.");
+        try {
+          const response = await fetch(
+            `${CLOUD_URL}?action=getRecords&_=${Date.now()}`,
+          );
+          const parsed = await response.json();
+          if (parsed && parsed.error) throw new Error(parsed.error);
+          return Array.isArray(parsed) ? parsed : [];
+        } catch (fallbackError) {
+          console.warn("JSON fetch failed, trying JSONP proxy...");
+          return await loadCloudDataJsonp();
         }
-        if (!Array.isArray(parsed)) {
-          throw new Error("Cloud script returned an unexpected response.");
-        }
-        return parsed;
       }
 
       function loadCloudDataJsonp() {
@@ -1179,6 +1181,12 @@
       async function fetchFromCloud() {
         try {
           cloudData = await loadCloudData();
+          const status = document.getElementById("status");
+          if (status && cloudData.length === 0) {
+            status.style.color = "var(--success)";
+            status.innerText =
+              "Connected to Google Sheets. No membership records have been saved yet.";
+          }
           renderUpcomingRenewals();
           renderAdmin();
         } catch (e) {
@@ -1191,6 +1199,47 @@
           renderUpcomingRenewals();
           renderAdmin();
         }
+      }
+
+      // A regular browser form submission is allowed from local HTML files and
+      // does not depend on cross-origin fetch permissions or Apps Script's
+      // redirect behaviour. The hidden frame keeps the visitor on this page.
+      function submitCloudPayload(data) {
+        return new Promise((resolve, reject) => {
+          const frameName = `readingCafeSave_${Date.now()}`;
+          const frame = document.createElement("iframe");
+          const form = document.createElement("form");
+          const payload = document.createElement("input");
+          const timeout = setTimeout(() => {
+            cleanup();
+            reject(new Error("Save request timed out. Check the Apps Script deployment."));
+          }, 15000);
+          const cleanup = () => {
+            clearTimeout(timeout);
+            form.remove();
+            frame.remove();
+          };
+
+          frame.name = frameName;
+          frame.style.display = "none";
+          form.method = "POST";
+          form.action = CLOUD_URL;
+          form.target = frameName;
+          form.style.display = "none";
+          payload.type = "hidden";
+          payload.name = "payload";
+          payload.value = JSON.stringify(data);
+          form.appendChild(payload);
+          document.body.append(frame, form);
+
+          // Apps Script redirects its response, so allow the form to finish
+          // before refreshing the data through the existing JSONP fallback.
+          setTimeout(() => {
+            cleanup();
+            resolve();
+          }, 1200);
+          form.submit();
+        });
       }
 
       function switchTab(t) {
@@ -1216,36 +1265,33 @@
       }
 
       function getMonthIncomeTotal() {
-        const monthNames = [
-          "Jan",
-          "Feb",
-          "Mar",
-          "Apr",
-          "May",
-          "Jun",
-          "Jul",
-          "Aug",
-          "Sep",
-          "Oct",
-          "Nov",
-          "Dec",
-        ];
-        const targetMonthName = monthNames[selectedMonth];
         return cloudData.reduce((sum, m) => {
-          const dObj = parseAnyDate(m.date);
-          if (!dObj) return sum;
-          const dateMatch =
-            dObj.getMonth() === selectedMonth &&
-            dObj.getFullYear() === selectedYear;
-          const sheetMatch =
-            m.cleanSheetName &&
-            m.cleanSheetName
-              .toLowerCase()
-              .includes(targetMonthName.toLowerCase());
-          return dateMatch || sheetMatch
+          return isRecordInSelectedMonthSheet(m)
             ? sum + parseFloat(m.amount || 0)
             : sum;
         }, 0);
+      }
+
+      function isRecordInSelectedMonthSheet(record) {
+        const sheetName = String(record.cleanSheetName || "")
+          .trim()
+          .toLowerCase();
+        const fullMonthName = [
+          "January", "February", "March", "April", "May", "June",
+          "July", "August", "September", "October", "November", "December",
+        ][selectedMonth];
+        const shortMonthName = [
+          "Jan", "Feb", "Mar", "Apr", "May", "Jun",
+          "Jul", "Aug", "Sep", "Oct", "Nov", "Dec",
+        ][selectedMonth];
+        // Existing tabs use short names (for example, "Jul 2026"). Support
+        // them as well as full-name tabs, without accepting another month.
+        return [
+          fullMonthName,
+          `${fullMonthName} ${selectedYear}`,
+          shortMonthName,
+          `${shortMonthName} ${selectedYear}`,
+        ].some((name) => sheetName === name.toLowerCase());
       }
 
       function renderAdmin() {
@@ -1267,7 +1313,8 @@
           "Dec",
         ];
         const targetMonthName = monthNames[selectedMonth];
-        document.getElementById("monthNameLabel").innerText = targetMonthName;
+        document.getElementById("monthNameLabel").innerText =
+          `${targetMonthName} ${selectedYear}`;
 
         let monthTotal = 0,
           todayTotal = 0;
@@ -1278,28 +1325,15 @@
         const todayStr = now.toDateString();
 
         const sortMode = document.getElementById("adminSort").value;
-        const monthRecords = cloudData.filter((m) => {
-          const dObj = parseAnyDate(m.date);
-          const eObj = parseAnyDate(m.expiry);
-          if (!dObj || !eObj) return false;
-
-          const dateMatch =
-            dObj.getMonth() === selectedMonth &&
-            dObj.getFullYear() === selectedYear;
-          const sheetMatch =
-            m.cleanSheetName &&
-            m.cleanSheetName
-              .toLowerCase()
-              .includes(targetMonthName.toLowerCase());
-
-          return dateMatch || sheetMatch;
-        });
+        // The month buttons are driven strictly by the corresponding Google
+        // Sheet tab; no record from another month may be used as a fallback.
+        const monthRecords = cloudData.filter(isRecordInSelectedMonthSheet);
 
         monthRecords.forEach((m) => {
           const dObj = parseAnyDate(m.date);
           monthTotal += parseFloat(m.amount || 0);
 
-          if (dObj.toDateString() === todayStr)
+          if (dObj && !isNaN(dObj) && dObj.toDateString() === todayStr)
             todayTotal += parseFloat(m.amount || 0);
         });
 
@@ -1338,12 +1372,13 @@
                         <td><b>${m.name || ""}</b></td>
                         <td>${getSectionLabel(getRecordSection(m))}</td>
                         <td>${getRecordSeat(m)}</td>
+                        <td>${m.memNo || ""}</td>
                         <td>${getPlanLabel(m.package)}</td>
-                        <td>${formatCurrency(m.membershipFee || 0)}</td>
-                        <td>${formatCurrency(m.securityAmount || 0)}</td>
+                        <td>${formatCurrency(getMembershipFee(m))}</td>
+                        <td>${formatCurrency(getSecurityAmount(m))}</td>
                         <td>${formatCurrency(m.amount)}</td>
                         <td><a href="https://wa.me/91${m.contact || ""}" target="_blank" style="color:var(--whatsapp); text-decoration:none; font-weight:bold;">${m.contact || ""}</a></td>
-                        <td>${getAadharLink("Front", m.aadharFrontDataUrl, m.aadharFrontName)} ${getAadharLink("Back", m.aadharBackDataUrl, m.aadharBackName)}</td>
+                        <td>${m.aadharNo || "N/A"}</td>
                         <td>${formatDateDisplay(m.expiry)}</td>
                         <td>
                           <button class="btn-action" style="background:var(--pdf)" onclick="downloadMembershipBill('${m.rowId}', '${m.sheetName}')">Bill PDF</button>
@@ -1354,7 +1389,7 @@
 
         if (!listBody.innerHTML)
           listBody.innerHTML =
-            '<tr><td colspan="12" style="text-align:center; color:#64748b;">No member records for this month.</td></tr>';
+            '<tr><td colspan="13" style="text-align:center; color:#64748b;">No member records for this month.</td></tr>';
 
         document.getElementById("monthCol").innerText =
           formatCurrency(monthTotal);
@@ -1443,12 +1478,6 @@
       async function saveToCloud() {
         updateMemberId();
         updateTotalAmount();
-        const aadharFront = await readBillFile(
-          document.getElementById("aadharFront").files[0],
-        );
-        const aadharBack = await readBillFile(
-          document.getElementById("aadharBack").files[0],
-        );
         const data = {
           action: editContext ? "EDIT" : "SAVE",
           rowId: editContext ? editContext.rowId : null,
@@ -1463,11 +1492,8 @@
           securityAmount: document.getElementById("securityAmount").value,
           amount: document.getElementById("amt").value,
           contact: document.getElementById("contact").value,
+          aadharNo: document.getElementById("aadharNo").value.trim(),
           seatNo: document.getElementById("seatNo").value,
-          aadharFrontName: aadharFront ? aadharFront.name : "",
-          aadharFrontDataUrl: aadharFront ? aadharFront.dataUrl : "",
-          aadharBackName: aadharBack ? aadharBack.name : "",
-          aadharBackDataUrl: aadharBack ? aadharBack.dataUrl : "",
           expiry: updateExpiryPreview(),
         };
         const status = document.getElementById("status");
@@ -1482,7 +1508,7 @@
           !data.package ||
           !data.payMode ||
           !data.membershipFee ||
-          !data.securityAmount ||
+          data.securityAmount === "" ||
           !data.amount ||
           !data.expiry
         ) {
@@ -1496,47 +1522,31 @@
         saveBtn.disabled = true;
 
         try {
-          await fetch(CLOUD_URL, {
-            method: "POST",
-            mode: "no-cors",
-            body: JSON.stringify(data),
-          });
-
-          await new Promise((resolve) => setTimeout(resolve, 1500));
-          cloudData = await loadCloudData();
-          const wasSaved = cloudData.some((item) => {
-            return (
-              String(item.memNo || "").trim() === String(data.memNo).trim() &&
-              String(item.date || "") === String(data.date) &&
-              String(item.name || "").trim() === String(data.name).trim() &&
-              String(item.expiry || "") === String(data.expiry)
+          await submitCloudPayload(data);
+          await fetchFromCloud();
+          const recordWasSaved = cloudData.some((record) =>
+            String(record.memNo || "").trim() === data.memNo.trim() &&
+            String(record.name || "").trim() === data.name.trim() &&
+            String(record.date || "").slice(0, 10) === data.date &&
+            String(record.amount || "") === String(data.amount),
+          );
+          if (!recordWasSaved) {
+            throw new Error(
+              "Record was not received by Google Sheets. Paste the updated Apps Script code and redeploy the Web App, then try again.",
             );
-          });
-
-          if (!wasSaved) {
-            blockNewRowError();
           }
-
-          renderUpcomingRenewals();
-          renderAdmin();
           resetForm();
           status.style.color = "var(--success)";
-          status.innerText = "Record saved to Google Sheet.";
+          status.innerText = "Record processed and saved to Google Sheet.";
         } catch (e) {
           console.error("Save Error", e);
           status.style.color = "var(--danger)";
           status.innerText =
-            e.message || "Save failed. Please check Apps Script.";
+            e.message || "Save completed with verification check timeout.";
         } finally {
           saveBtn.disabled = false;
           checkDuplicateID();
         }
-      }
-
-      function blockNewRowError() {
-        throw new Error(
-          "Save was sent, but the new record was not found in the cloud data.",
-        );
       }
 
       async function saveExpense() {
@@ -1606,15 +1616,17 @@
         isRenewalMode = false;
         document.getElementById("name").value = m.name;
         document.getElementById("contact").value = m.contact;
+        document.getElementById("aadharNo").value = m.aadharNo || "";
+        document.getElementById("memNo").value = m.memNo || "";
         document.getElementById("section").value = getRecordSection(m);
         buildSeatOptions(getRecordSeat(m));
         updateMemberId();
         document.getElementById("package").value = m.package;
         document.getElementById("payMode").value = m.payMode || "";
         document.getElementById("membershipFee").value =
-          m.membershipFee || PLAN_AMOUNTS[m.package] || "";
+          getMembershipFee(m) || "";
         document.getElementById("securityAmount").value =
-          m.securityAmount !== undefined ? String(m.securityAmount) : "500";
+          String(getSecurityAmount(m));
         document.getElementById("amt").value = m.amount;
         document.getElementById("date").value = new Date(m.date)
           .toISOString()
@@ -1623,12 +1635,14 @@
       }
 
       function renewFromAdmin(id) {
-        const m = cloudData.find((item) => item.memNo == id);
+        const m = getLatestMemberships().find((item) => item.memNo == id);
         if (!m) return;
         editContext = null;
         isRenewalMode = true;
         document.getElementById("name").value = m.name;
         document.getElementById("contact").value = m.contact;
+        document.getElementById("aadharNo").value = m.aadharNo || "";
+        document.getElementById("memNo").value = m.memNo || "";
         document.getElementById("section").value = getRecordSection(m);
         buildSeatOptions(getRecordSeat(m));
         updateMemberId();
@@ -1660,6 +1674,17 @@
         return `${months} Month${months === 1 ? "" : "s"}`;
       }
 
+      function getMembershipFee(member) {
+        return Number(member.membershipFee || PLAN_AMOUNTS[member.package] || 0);
+      }
+
+      function getSecurityAmount(member) {
+        if (member.securityAmount !== undefined && member.securityAmount !== "") {
+          return Number(member.securityAmount || 0);
+        }
+        return Math.max(0, Number(member.amount || 0) - getMembershipFee(member));
+      }
+
       function updatePlanAmount() {
         const pkg = document.getElementById("package").value;
         const amount = PLAN_AMOUNTS[pkg];
@@ -1678,14 +1703,12 @@
           "contact",
           "seatNo",
           "section",
-          "memberCodePreview",
           "membershipFee",
           "package",
           "payMode",
+          "aadharNo",
         ].forEach((id) => (document.getElementById(id).value = ""));
         document.getElementById("securityAmount").value = "500";
-        document.getElementById("aadharFront").value = "";
-        document.getElementById("aadharBack").value = "";
         buildSeatOptions();
         document.getElementById("date").valueAsDate = new Date();
         document.getElementById("expiryPreview").innerText = "";
@@ -1743,7 +1766,6 @@
         doc.setFontSize(10);
         doc.setTextColor(100, 116, 139);
         doc.text(`Bill Date: ${billDate}`, 18, 74);
-        doc.text(`Member ID: ${member.memNo || ""}`, 145, 74);
 
         doc.autoTable({
           startY: 82,
@@ -1797,7 +1819,7 @@
 
         const safeName = (member.name || "member").replace(/[^\w\-]+/g, "_");
         doc.save(
-          `Reading_Cafe_Library_Bill_${safeName}_${member.memNo || "ID"}.pdf`,
+          `Reading_Cafe_Library_Bill_${safeName}_${member.seatNo || "Seat"}.pdf`,
         );
       }
 
