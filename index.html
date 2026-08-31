@@ -2,1090 +2,2063 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Happy Homes | PG Management</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Reading Cafe Library - Membership Portal</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.25/jspdf.plugin.autotable.min.js"></script>
     <style>
       :root {
-        --brand: #0f766e;
-        --ink: #172033;
-        --muted: #64748b;
-        --line: #dce3ea;
-        --bg: #f6f8fa;
+        --primary: #3b2a1f;
+        --primary-soft: #efe7dc;
+        --accent: #b28a52;
+        --whatsapp: #25d366;
+        --bg: #f7f4ef;
+        --danger: #b42318;
+        --info: #2563eb;
+        --success: #1f7a4d;
+        --sheet: #2f6f4e;
+        --pdf: #8f2f1d;
+        --text: #1f2933;
       }
-      * {
-        box-sizing: border-box;
-      }
+
       body {
-        margin: 0;
+        font-family: "Segoe UI", sans-serif;
         background: var(--bg);
-        color: var(--ink);
-        font:
-          14px Arial,
-          sans-serif;
-      }
-      .app {
-        display: grid;
-        grid-template-columns: 230px 1fr;
-        min-height: 100vh;
-      }
-      .side {
-        background: #fff;
-        border-right: 1px solid var(--line);
-        padding: 24px;
-      }
-      .brand {
-        color: var(--brand);
-        font-size: 21px;
-        font-weight: 800;
-      }
-      .brand small {
-        display: block;
-        color: var(--muted);
-        font-size: 11px;
-        margin: 5px 0 24px;
-      }
-      .nav {
-        display: block;
-        width: 100%;
-        border: 0;
-        border-radius: 6px;
-        background: none;
-        color: #475569;
-        font-weight: 700;
-        padding: 12px 10px;
-        text-align: left;
-      }
-      .nav:hover,
-      .nav.active {
-        background: #f0fdfa;
-        color: var(--brand);
-      }
-      .main {
-        width: 100%;
-        max-width: 1450px;
-        margin: auto;
-        padding: 30px;
-      }
-      .top,
-      .actions {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        gap: 12px;
-      }
-      .top h1 {
+        color: var(--text);
         margin: 0;
-        font-size: 25px;
+        padding: 10px;
       }
-      .muted {
-        color: var(--muted);
+
+      .container {
+        max-width: 1400px;
+        margin: auto;
       }
-      .grid {
-        display: grid;
-        grid-template-columns: repeat(4, 1fr);
-        gap: 14px;
-        margin-top: 24px;
-      }
-      .card,
-      .panel {
+
+      .tabs {
+        display: flex;
         background: #fff;
-        border: 1px solid var(--line);
+        border: 1px solid #e4d8c8;
         border-radius: 8px;
-        padding: 18px;
+        overflow: hidden;
+        margin-bottom: 20px;
+        box-shadow: 0 8px 24px rgba(59, 42, 31, 0.08);
       }
-      .card b {
-        display: block;
-        font-size: 27px;
-        margin: 9px 0;
+
+      .tab {
+        flex: 1;
+        padding: 15px;
+        text-align: center;
+        cursor: pointer;
+        font-weight: bold;
+        color: #888;
+        transition: 0.3s;
       }
-      .panel {
-        margin-top: 20px;
+
+      .tab.active {
+        background: var(--primary);
+        color: white;
       }
-      .btn {
-        border: 0;
-        border-radius: 6px;
-        background: var(--brand);
-        color: #fff;
-        font-weight: 700;
-        padding: 10px 14px;
-        text-decoration: none;
-        display: inline-block;
+
+      .card {
+        background: white;
+        padding: 22px;
+        border: 1px solid #e4d8c8;
+        border-radius: 8px;
+        box-shadow: 0 10px 26px rgba(59, 42, 31, 0.06);
+        margin-bottom: 20px;
       }
-      .btn.light {
-        border: 1px solid var(--brand);
-        background: #fff;
-        color: var(--brand);
-      }
-      .table-wrap {
-        overflow: auto;
-      }
-      .table {
+
+      input,
+      select,
+      button {
         width: 100%;
-        min-width: 720px;
+        padding: 12px;
+        margin: 7px 0;
+        border: 1px solid #d9cbbb;
+        border-radius: 6px;
+        box-sizing: border-box;
+        font-size: 16px;
+      }
+
+      button {
+        background: var(--primary);
+        color: white;
+        border: none;
+        font-weight: bold;
+        cursor: pointer;
+      }
+
+      button:disabled {
+        background: #ccc;
+        cursor: not-allowed;
+      }
+
+      .hidden {
+        display: none;
+      }
+
+      .month-nav {
+        display: flex;
+        gap: 8px;
+        overflow-x: auto;
+        padding: 10px 0;
+        margin-bottom: 15px;
+        scrollbar-width: none;
+      }
+
+      .month-pill {
+        background: #fff;
+        border: 1px solid #ddd;
+        padding: 8px 18px;
+        border-radius: 20px;
+        cursor: pointer;
+        white-space: nowrap;
+        font-size: 13px;
+        font-weight: bold;
+        color: #555;
+      }
+
+      .month-pill.active {
+        background: var(--primary);
+        color: white;
+      }
+
+      .scroll-table {
+        overflow-x: auto;
+        max-height: 450px;
+        border-radius: 8px;
+      }
+
+      table {
+        width: 100%;
         border-collapse: collapse;
+        font-size: 13px;
+        background: white;
       }
-      .table th,
-      .table td {
-        padding: 13px 9px;
-        border-bottom: 1px solid #e7ecf0;
+
+      th,
+      td {
+        padding: 12px;
         text-align: left;
+        border-bottom: 1px solid #eee;
       }
-      .table th {
-        color: var(--muted);
+
+      th {
+        background: #f8f9fa;
+        position: sticky;
+        top: 0;
+        z-index: 10;
+        color: var(--primary);
         font-size: 11px;
         text-transform: uppercase;
       }
-      .badge {
-        border-radius: 99px;
-        padding: 4px 8px;
-        font-size: 11px;
-        font-weight: 700;
-        background: #e2e8f0;
-      }
-      .paid {
-        background: #d1fae5;
-        color: #047857;
-      }
-      .overdue {
+
+      .badge-today {
         background: #fee2e2;
-        color: #b91c1c;
+        color: #991b1b;
+        border: 1px solid #991b1b;
+        padding: 4px 10px;
+        border-radius: 20px;
+        font-size: 11px;
+        font-weight: bold;
       }
-      .pending,
-      .partially_paid {
-        background: #fef3c7;
-        color: #92400e;
+
+      .btn-action {
+        width: auto;
+        padding: 6px 12px;
+        font-size: 11px;
+        border-radius: 4px;
+        border: none;
+        color: white;
+        cursor: pointer;
+        margin-right: 2px;
       }
-      .empty {
-        padding: 36px;
+
+      #id-warning {
+        color: var(--danger);
+        font-size: 11px;
+        font-weight: bold;
+        display: none;
+        margin-bottom: 5px;
+      }
+
+      .btn-pdf {
+        background-color: var(--pdf) !important;
+        margin-bottom: 10px;
+      }
+
+      .admin-subtabs {
+        display: flex;
+        gap: 10px;
+        margin-bottom: 20px;
+        flex-wrap: wrap;
+      }
+
+      .admin-subtab {
+        width: auto;
+        padding: 10px 18px;
+        background: #e2e8f0;
+        color: #334155;
+        border-radius: 999px;
+      }
+
+      .admin-subtab.active {
+        background: var(--primary);
+        color: white;
+      }
+
+      .summary-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+        gap: 15px;
+        margin-bottom: 20px;
+      }
+
+      .summary-box {
+        background: var(--primary-soft);
+        padding: 15px;
+        border: 1px solid #e0d1bd;
+        border-radius: 8px;
         text-align: center;
-        color: var(--muted);
       }
-      dialog {
-        border: 0;
-        border-radius: 9px;
-        width: min(580px, 94vw);
-        padding: 0;
-        box-shadow: 0 25px 70px #0005;
+
+      .brand-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 16px;
+        background: #fff;
+        border: 1px solid #e4d8c8;
+        border-radius: 8px;
+        padding: 16px 20px;
+        margin-bottom: 16px;
+        box-shadow: 0 8px 24px rgba(59, 42, 31, 0.06);
       }
-      dialog::backdrop {
-        background: #0f172a88;
+
+      .brand-title {
+        margin: 0;
+        font-size: 26px;
+        color: var(--primary);
       }
-      dialog form {
-        padding: 22px;
+
+      .brand-subtitle {
+        margin: 4px 0 0;
+        font-size: 13px;
+        color: #6b5a4a;
+        font-weight: 600;
       }
-      .two {
+
+      .form-grid {
         display: grid;
         grid-template-columns: 1fr 1fr;
-        gap: 12px;
+        gap: 15px;
       }
-      label {
-        display: block;
+
+      .muted-note {
         font-size: 12px;
+        color: #64748b;
+        margin-top: -2px;
+        margin-bottom: 10px;
+      }
+
+      .link-btn {
+        color: var(--info);
+        font-weight: bold;
+        text-decoration: none;
+      }
+
+      .sort-controls {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+        gap: 12px;
+        margin: 0 0 12px;
+      }
+
+      .readonly-field {
+        background: #f8f3eb;
+        color: #3b2a1f;
         font-weight: 700;
-        margin-top: 12px;
       }
-      input,
-      select,
-      textarea {
-        width: 100%;
-        margin-top: 5px;
-        padding: 10px;
-        border: 1px solid #bcc9d5;
-        border-radius: 5px;
-        font: inherit;
+
+      .file-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 15px;
       }
-      .error {
-        color: #b91c1c;
+
+      .danger-btn {
+        background: var(--danger);
       }
-      .toast {
-        position: fixed;
-        right: 20px;
-        bottom: 20px;
-        background: #172033;
+
+      .renewal-toolbar {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        flex-wrap: wrap;
+      }
+
+      .renewal-picker {
+        position: absolute;
+        opacity: 0;
+        pointer-events: none;
+        width: 1px;
+        height: 1px;
+      }
+
+      .renewal-date-chip {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 10px 16px;
+        border: 1px solid #cbd5e1;
+        border-radius: 14px;
+        background: #fff;
+      }
+
+      .renewal-current-date {
+        font-weight: 800;
+        color: var(--primary);
+        min-width: 120px;
+      }
+
+      .calendar-btn {
+        width: auto;
+        margin: 0;
+        padding: 8px 10px;
+        background: #fff;
+        color: #111827;
+        border: 1px solid #cbd5e1;
+        border-radius: 10px;
+        font-size: 18px;
+        line-height: 1;
+      }
+
+      .renewal-nav-btn {
+        width: auto;
+        margin: 0;
+        padding: 10px 12px;
+        background: var(--primary);
         color: #fff;
-        padding: 12px 16px;
-        border-radius: 6px;
+        border-radius: 10px;
+        font-weight: 700;
       }
-      @media (max-width: 760px) {
-        .app {
-          display: block;
-        }
-        .side {
-          padding: 15px;
-          border-bottom: 1px solid var(--line);
-        }
-        .brand small {
-          display: none;
-        }
-        .nav {
-          display: inline-block;
-          width: auto;
-        }
-        .main {
-          padding: 18px;
-        }
-        .grid {
-          grid-template-columns: repeat(2, 1fr);
-        }
-        .two {
+
+      @media (max-width: 768px) {
+        .form-grid {
           grid-template-columns: 1fr;
         }
-        .top {
-          align-items: flex-start;
-        }
-        .actions {
-          flex-wrap: wrap;
-        }
-        .table {
-          min-width: 650px;
+
+        .file-grid {
+          grid-template-columns: 1fr;
         }
       }
     </style>
   </head>
+
   <body>
-    <div class="app">
-      <aside class="side">
-        <div class="brand">Happy Homes<small>Shared PG management</small></div>
-        <button class="nav active" data-page="dashboard">Dashboard</button
-        ><button class="nav" data-page="tenants">Tenants</button
-        ><button class="nav" data-page="rooms">Rooms</button
-        ><button class="nav" data-page="payments">Payments</button
-        ><button class="nav" data-page="renewals">Upcoming renewals</button>
-      </aside>
-      <main class="main">
-        <div class="top">
+    <div class="container">
+      <div class="brand-header">
+        <div>
+          <h1 class="brand-title">Reading Cafe Library</h1>
+          <p class="brand-subtitle">Membership Management Portal</p>
+        </div>
+        <div class="brand-subtitle"></div>
+      </div>
+      <div class="tabs">
+        <div class="tab active" onclick="switchTab('reg')" id="t-reg">
+          Membership Desk
+        </div>
+        <div class="tab" onclick="switchTab('admin')" id="t-admin">
+          Admin Portal
+        </div>
+      </div>
+
+      <div id="regView" class="card">
+        <h2 id="formTitle">Membership Desk</h2>
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px">
           <div>
-            <h1 id="title">Dashboard</h1>
-            <p class="muted" id="subtitle">Live property overview</p>
+            <label style="font-size: 11px; font-weight: bold">Date *</label>
+            <input type="date" id="date" required />
           </div>
-          <div class="actions">
-            <button class="btn light" id="roomButton">+ Room</button
-            ><button class="btn" id="tenantButton">+ Tenant</button>
+          <div>
+            <label style="font-size: 11px; font-weight: bold">Section *</label>
+            <select
+              id="section"
+              onchange="
+                buildSeatOptions();
+                buildPlanOptions();
+                updateMemberId();
+                checkDuplicateID();
+              "
+              required
+            >
+              <option value="">-- Choose Section --</option>
+              <option value="A">Section A - Fixed Seats 1 to 27</option>
+              <option value="B">Section B - Fixed Seats 1 to 31</option>
+              <option value="C">Floating - Random Seats</option>
+            </select>
           </div>
         </div>
-        <div id="view"></div>
-      </main>
+        <input type="text" id="name" placeholder="Full Name" required />
+        <input
+          type="text"
+          id="contact"
+          placeholder="WhatsApp Number"
+          required
+        />
+        <div class="form-grid">
+          <div>
+            <label style="font-size: 11px; font-weight: bold"
+              >Reading Room Seat *</label
+            >
+            <select
+              id="seatNo"
+              onchange="
+                updateMemberId();
+                checkDuplicateID();
+              "
+              required
+            >
+              <option value="">-- Select Section First --</option>
+            </select>
+            <div id="id-warning">
+              Seats may be shared by more than one member.
+            </div>
+          </div>
+          <div>
+            <label style="font-size: 11px; font-weight: bold"
+              >Membership Number *</label
+            >
+            <input
+              type="text"
+              id="memNo"
+              placeholder="Enter Membership Number"
+              required
+            />
+          </div>
+        </div>
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px">
+          <select
+            id="package"
+            onchange="
+              updatePlanAmount();
+              updateExpiryPreview();
+            "
+            required
+          >
+            <option value="">-- Choose Section First --</option>
+          </select>
+          <select id="payMode" required>
+            <option value="">-- Payment Mode --</option>
+            <option value="Cash">Cash</option>
+            <option value="Online">Online</option>
+          </select>
+        </div>
+        <div class="form-grid">
+          <div>
+            <label style="font-size: 11px; font-weight: bold"
+              >Monthly Payment (Rs.) *</label
+            >
+            <input
+              type="number"
+              id="membershipFee"
+              placeholder="Monthly Payment (Rs.)"
+              oninput="updateTotalAmount()"
+              required
+            />
+          </div>
+          <div>
+            <label style="font-size: 11px; font-weight: bold"
+              >Aadhaar Card Number</label
+            >
+            <input
+              type="text"
+              id="aadharNo"
+              placeholder="Aadhaar Card Number"
+              inputmode="numeric"
+              maxlength="12"
+            />
+          </div>
+        </div>
+        <input type="hidden" id="securityAmount" value="500" />
+        <input type="hidden" id="amt" />
+        <div
+          id="expiryPreview"
+          style="
+            text-align: center;
+            font-weight: bold;
+            color: var(--primary);
+            background: #eef2ff;
+            padding: 10px;
+            border-radius: 8px;
+            margin: 10px 0;
+            border: 1px dashed var(--primary);
+          "
+        ></div>
+        <button onclick="saveToCloud()" id="saveBtn">Save Record</button>
+        <button
+          onclick="resetForm()"
+          style="background: #64748b; margin-top: 5px"
+        >
+          Clear Form
+        </button>
+        <p id="status" style="text-align: center; font-weight: bold"></p>
+
+        <div
+          id="renewalDeskPanel"
+          style="
+            background: #fffaf2;
+            border: 1px solid #e4c899;
+            border-radius: 8px;
+            padding: 15px;
+            margin-top: 20px;
+          "
+        >
+          <div
+            style="
+              display: flex;
+              justify-content: space-between;
+              align-items: center;
+              gap: 10px;
+              margin-bottom: 10px;
+              flex-wrap: wrap;
+            "
+          >
+            <h3 style="color: var(--primary); margin: 0">Renewal Due</h3>
+            <div class="renewal-toolbar">
+              <button
+                type="button"
+                class="renewal-nav-btn"
+                onclick="changeReminderDate(-1)"
+                aria-label="Show previous renewal date"
+              >
+                ← Previous
+              </button>
+              <input
+                type="date"
+                id="reminderDatePicker"
+                class="renewal-picker"
+                onchange="changeReminderDateFromPicker()"
+              />
+              <div class="renewal-date-chip">
+                <span id="todayDateLabel" class="renewal-current-date"></span>
+                <button
+                  type="button"
+                  class="calendar-btn"
+                  onclick="openReminderCalendar()"
+                  aria-label="Choose renewal date"
+                >
+                  📅
+                </button>
+              </div>
+              <button
+                type="button"
+                class="renewal-nav-btn"
+                onclick="changeReminderDate(1)"
+                aria-label="Show next renewal date"
+              >
+                Next →
+              </button>
+            </div>
+          </div>
+          <div class="scroll-table">
+            <table>
+              <thead>
+                <tr>
+                  <th>Name</th>
+                  <th>ID</th>
+                  <th>Expiry</th>
+                  <th>Action</th>
+                </tr>
+              </thead>
+              <tbody id="publicAlertBody"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <div id="adminView" class="hidden">
+        <div class="card">
+          <div class="admin-subtabs">
+            <button
+              class="admin-subtab active"
+              id="adminAnalyticsTab"
+              onclick="switchAdminSection('analytics')"
+            >
+              Membership Analytics
+            </button>
+            <button
+              class="admin-subtab"
+              id="adminExpensesTab"
+              onclick="switchAdminSection('expenses')"
+            >
+              Library Expenses
+            </button>
+          </div>
+
+          <div id="analyticsSection">
+            <button
+              onclick="
+                window.open(
+                  'https://docs.google.com/spreadsheets/d/1tekGf_V-o-r22RC8LKXVcBGOM613XICY8ZTJPKsyfk8/edit?usp=sharing',
+                  '_blank',
+                )
+              "
+              style="background-color: var(--sheet); margin-bottom: 10px"
+            >
+              View Google Sheet (Cloud Database)
+            </button>
+            <button onclick="downloadRenewalPDF()" class="btn-pdf">
+              Download Monthly Renewal Due List (PDF)
+            </button>
+
+            <div class="summary-grid">
+              <div class="summary-box">
+                <span id="monthNameLabel">Month</span> Total<br /><b
+                  id="monthCol"
+                  style="color: green; font-size: 22px"
+                  >Rs. 0</b
+                >
+              </div>
+              <div class="summary-box">
+                Today's Total<br /><b
+                  id="todayCol"
+                  style="color: #1a2a6c; font-size: 22px"
+                  >Rs. 0</b
+                >
+              </div>
+            </div>
+
+            <div class="month-nav" id="monthNav"></div>
+
+            <input
+              type="text"
+              id="search"
+              placeholder="Search by name, section, or seat..."
+              onkeyup="renderAdmin()"
+              style="margin-bottom: 15px; border: 2px solid var(--primary)"
+            />
+            <div class="sort-controls">
+              <select id="adminSort" onchange="renderAdmin()">
+                <option value="date-desc">Sort: Date Newest</option>
+                <option value="date-asc">Sort: Date Oldest</option>
+                <option value="section">Sort: Section Wise</option>
+                <option value="seat">Sort: Seat Number Wise</option>
+              </select>
+            </div>
+            <div class="scroll-table">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Date</th>
+                    <th>Name</th>
+                    <th>Section</th>
+                    <th>Seat</th>
+                    <th>Membership No.</th>
+                    <th>Plan</th>
+                    <th>Monthly</th>
+                    <th>Security</th>
+                    <th>Total</th>
+                    <th>Contact</th>
+                    <th>Aadhar No.</th>
+                    <th>Expiry</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody id="memberListBody"></tbody>
+              </table>
+            </div>
+          </div>
+
+          <div id="expensesSection" class="hidden">
+            <div class="form-grid">
+              <div>
+                <label style="font-size: 11px; font-weight: bold"
+                  >Expense Date *</label
+                >
+                <input type="date" id="expenseDate" />
+              </div>
+              <div>
+                <label style="font-size: 11px; font-weight: bold"
+                  >Amount (Rs.) *</label
+                >
+                <input
+                  type="number"
+                  id="expenseAmount"
+                  placeholder="Expense Amount"
+                />
+              </div>
+            </div>
+
+            <div class="form-grid">
+              <div>
+                <label style="font-size: 11px; font-weight: bold"
+                  >Expense Head *</label
+                >
+                <input
+                  type="text"
+                  id="expenseTitle"
+                  placeholder="Books / Newspapers / Electricity"
+                />
+              </div>
+              <div>
+                <label style="font-size: 11px; font-weight: bold"
+                  >Payment Mode *</label
+                >
+                <select id="expensePayMode">
+                  <option value="">-- Payment Mode --</option>
+                  <option value="Cash">Cash</option>
+                  <option value="Online">Online</option>
+                  <option value="Card">Card</option>
+                  <option value="UPI">UPI</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="form-grid">
+              <div>
+                <label style="font-size: 11px; font-weight: bold"
+                  >Category</label
+                >
+                <select id="expenseCategory">
+                  <option value="Books">Books</option>
+                  <option value="Newspapers">Newspapers</option>
+                  <option value="Rent">Rent</option>
+                  <option value="Electricity">Electricity</option>
+                  <option value="Internet">Internet</option>
+                  <option value="Staff">Staff</option>
+                  <option value="Furniture">Furniture</option>
+                  <option value="Maintenance">Maintenance</option>
+                </select>
+              </div>
+              <div>
+                <label style="font-size: 11px; font-weight: bold"
+                  >Upload Bill</label
+                >
+                <input type="file" id="expenseBill" accept="image/*,.pdf" />
+              </div>
+            </div>
+
+            <div class="muted-note">
+              Bill upload is optional. Uploaded bills are currently stored only
+              in this browser.
+            </div>
+
+            <button onclick="saveExpense()">Save Expense</button>
+            <button
+              onclick="resetExpenseForm()"
+              style="background: #64748b; margin-top: 5px"
+            >
+              Clear Expense Form
+            </button>
+            <p
+              id="expenseStatus"
+              style="text-align: center; font-weight: bold"
+            ></p>
+
+            <div class="summary-grid">
+              <div class="summary-box">
+                <span id="expenseMonthNameLabel">Month</span> Expense<br /><b
+                  id="expenseMonthTotal"
+                  style="color: var(--danger); font-size: 22px"
+                  >Rs. 0</b
+                >
+              </div>
+              <div class="summary-box">
+                Today's Expense<br /><b
+                  id="expenseTodayTotal"
+                  style="color: #b45309; font-size: 22px"
+                  >Rs. 0</b
+                >
+              </div>
+              <div class="summary-box">
+                Net Collection<br /><b
+                  id="netCollectionTotal"
+                  style="color: var(--success); font-size: 22px"
+                  >Rs. 0</b
+                >
+              </div>
+            </div>
+
+            <div class="month-nav" id="expenseMonthNav"></div>
+            <input
+              type="text"
+              id="expenseSearch"
+              placeholder="Search expense head or category..."
+              onkeyup="renderExpenses()"
+              style="margin-bottom: 15px; border: 2px solid var(--danger)"
+            />
+            <div class="scroll-table">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Date</th>
+                    <th>Head</th>
+                    <th>Category</th>
+                    <th>Mode</th>
+                    <th>Amount</th>
+                    <th>Bill</th>
+                    <th>Action</th>
+                  </tr>
+                </thead>
+                <tbody id="expenseListBody"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
 
-    <dialog id="tenantDialog">
-      <form id="tenantForm">
-        <div class="top">
-          <h2>Add tenant</h2>
-          <button class="btn light" type="button" data-close="tenantDialog">
-            Close
-          </button>
-        </div>
-        <div class="two">
-          <label>Name<input name="name" required /></label
-          ><label
-            >Mobile<input
-              name="mobile"
-              pattern="[6-9][0-9]{9}"
-              required /></label
-          ><label>Email<input name="email" type="email" /></label
-          ><label>Join date<input name="joinDate" type="date" required /></label
-          ><label
-            >Monthly rent<input
-              name="monthlyRent"
-              type="number"
-              min="1"
-              required /></label
-          ><label
-            >Due day (1-31)<input
-              name="dueDateDay"
-              type="number"
-              min="1"
-              max="31"
-              value="5"
-              required /></label
-          ><label
-            >Available room<select
-              name="roomId"
-              id="tenantRoom"
-              required
-            ></select
-          ></label>
-        </div>
-        <label>Notes<textarea name="notes"></textarea></label>
-        <p class="error" id="tenantError"></p>
-        <button class="btn">Save tenant</button>
-      </form>
-    </dialog>
-    <dialog id="roomDialog">
-      <form id="roomForm">
-        <div class="top">
-          <h2>Add room</h2>
-          <button class="btn light" type="button" data-close="roomDialog">
-            Close
-          </button>
-        </div>
-        <div class="two">
-          <label>Room number<input name="roomNumber" required /></label
-          ><label>Floor<input name="floor" required /></label
-          ><label
-            >Section<select name="gender">
-              <option value="boys">Boys</option>
-              <option value="girls">Girls</option>
-            </select></label
-          ><label
-            >Capacity<input
-              name="capacity"
-              type="number"
-              min="1"
-              required /></label
-          ><label
-            >Base rent<input name="monthlyRent" type="number" min="0"
-          /></label>
-        </div>
-        <button class="btn">Save room</button>
-      </form>
-    </dialog>
-    <dialog id="paymentDialog">
-      <form id="paymentForm">
-        <div class="top">
-          <h2 id="paymentTitle">Record payment</h2>
-          <button class="btn light" type="button" data-close="paymentDialog">
-            Close
-          </button>
-        </div>
-        <input type="hidden" name="paymentId" />
-        <div class="two">
-          <label
-            >Billing month<select name="billingMonth">
-              <option value="1">January</option>
-              <option value="2">February</option>
-              <option value="3">March</option>
-              <option value="4">April</option>
-              <option value="5">May</option>
-              <option value="6">June</option>
-              <option value="7">July</option>
-              <option value="8">August</option>
-              <option value="9">September</option>
-              <option value="10">October</option>
-              <option value="11">November</option>
-              <option value="12">December</option>
-            </select></label
-          ><label
-            >Billing year<input
-              name="billingYear"
-              type="number"
-              min="2020"
-              max="2200"
-              required /></label
-          ><label
-            >Amount received<input
-              name="amount"
-              type="number"
-              min="0"
-              required /></label
-          ><label
-            >Payment status<select name="status">
-              <option value="paid">Paid</option>
-              <option value="partially_paid">Partially paid</option>
-              <option value="pending">Unpaid - pending</option>
-              <option value="overdue">Unpaid - overdue</option>
-            </select></label
-          ><label>Payment date<input name="datePaid" type="date" /></label
-          ><label
-            >Method<select name="method">
-              <option value="cash">Cash</option>
-              <option value="UPI">UPI</option>
-              <option value="bank_transfer">Bank transfer</option>
-              <option value="card">Card</option>
-            </select></label
-          >
-        </div>
-        <label>Notes<textarea name="notes"></textarea></label
-        ><button class="btn">Save payment</button>
-      </form>
-    </dialog>
-    <dialog id="expenseDialog">
-      <form id="expenseForm">
-        <div class="top">
-          <h2>Add expenditure</h2>
-          <button class="btn light" type="button" data-close="expenseDialog">
-            Close
-          </button>
-        </div>
-        <label
-          >Section<select name="gender">
-            <option value="boys">Boys</option>
-            <option value="girls">Girls</option>
-          </select></label
-        ><label>Description<input name="description" required /></label
-        ><label
-          >Amount<input name="amount" type="number" min="1" required /></label
-        ><label>Date<input name="date" type="date" required /></label
-        ><label>Notes<textarea name="notes"></textarea></label
-        ><button class="btn">Save expenditure</button>
-      </form>
-    </dialog>
-    <dialog id="leftDialog">
-      <form id="leftForm">
-        <div class="top">
-          <h2>Mark tenant as left</h2>
-          <button class="btn light" type="button" data-close="leftDialog">
-            Close
-          </button>
-        </div>
-        <input type="hidden" name="tenantId" /><label
-          >Leave date<input name="leaveDate" type="date" required /></label
-        ><button class="btn">Confirm move-out</button>
-      </form>
-    </dialog>
-    <dialog id="confirmDialog">
-      <form id="confirmForm">
-        <div class="top">
-          <h2 id="confirmTitle">Confirm deletion</h2>
-          <button class="btn light" type="button" data-close="confirmDialog">
-            Close
-          </button>
-        </div>
-        <p id="confirmText" class="muted"></p>
-        <button class="btn" style="background: #b91c1c">
-          Delete permanently
-        </button>
-      </form>
-    </dialog>
+    <script>
+      // =========================================================================
+      // PASTE YOUR GOOGLE APPS SCRIPT WEB APP URL IN THE QUOTES BELOW:
+      // =========================================================================
+      const CONFIG_APPS_SCRIPT_URL =
+        "https://script.google.com/macros/s/AKfycbzht0HHxE6c8HzjPWp-6WfaFZDSanDnVIO5mrlN4W1lnhY29T-PcbTNVxVe_xvWOrJGiw/exec";
+      // =========================================================================
 
-    <script type="module">
-      import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js";
-      import {
-        getDatabase,
-        ref,
-        get,
-        push,
-        set,
-        update,
-        serverTimestamp,
-      } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-database.js";
-
-      // Paste Firebase Console > Project settings > General > Your apps > Web app values here.
-      const firebaseConfig = {
-        apiKey: "AIzaSyCffyHOnYfzlJXuk3ZXNUSeHYRMp1i1mE8",
-        authDomain: "happyhomes-c8bed.firebaseapp.com",
-        databaseURL: "https://happyhomes-c8bed-default-rtdb.firebaseio.com",
-        projectId: "happyhomes-c8bed",
-        storageBucket: "happyhomes-c8bed.firebasestorage.app",
-        messagingSenderId: "44873604482",
-        appId: "1:44873604482:web:6e4ff766741cc4fc96839b",
-        measurementId: "G-NMYPJ9VZLV",
+      const CLOUD_URL = CONFIG_APPS_SCRIPT_URL;
+      const EXPENSE_STORAGE_KEY = "readingCafeLibraryExpenses";
+      const LIBRARY_NAME = "Reading Cafe Library";
+      const LIBRARY_ADDRESS =
+        "Building No. 2950, 1st Floor, Gali No-12, Near Shiv Mandir Chowk, South Patel Nagar, New Delhi 110008.";
+      const PLAN_AMOUNTS = {
+        A: { 1: 2000, 2: 3800, 3: 5500 },
+        B: { 1: 2200, 2: 4200, 3: 6100 },
+        C: { 1: 1500, 2: 2500, 3: 3500 },
       };
-      const db = getDatabase(initializeApp(firebaseConfig));
-      const $ = (selector) => document.querySelector(selector);
-      const today = () => new Date().toISOString().slice(0, 10);
-      const money = (value) => "₹" + Number(value || 0).toLocaleString("en-IN");
-      const esc = (value) =>
-        String(value ?? "").replace(
-          /[&<>"']/g,
-          (char) =>
-            ({
-              "&": "&amp;",
-              "<": "&lt;",
-              ">": "&gt;",
-              '"': "&quot;",
-              "'": "&#39;",
-            })[char],
-        );
-      let page = "dashboard";
-      let renewalAnchor = new Date();
-      let store = {
-        tenants: [],
-        rooms: [],
-        payments: [],
-        allocations: [],
-        expenditures: [],
+      const SECURITY_AMOUNT = 500;
+      const SECTION_SEATS = {
+        A: 27,
+        B: 31,
+        C: 0,
       };
+      const BILL_LOGO_DATA_URL =
+        "data:image/jpeg;base64,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";
 
-      function notify(message) {
-        const item = document.createElement("div");
-        item.className = "toast";
-        item.textContent = message;
-        document.body.append(item);
-        setTimeout(() => item.remove(), 3000);
-      }
-      function badge(status) {
-        return `<span class="badge ${esc(status)}">${esc(String(status).replace("_", " "))}</span>`;
-      }
-      async function load() {
-        for (const name of Object.keys(store)) {
-          const snap = await get(ref(db, name));
-          const data = snap.val() || {};
-          store[name] = Object.entries(data).map(([id, value]) => ({
-            id,
-            ...value,
-          }));
+      let cloudData = [];
+      let expenseData = [];
+      let editContext = null;
+      let isRenewalMode = false;
+      let reminderViewDate = new Date();
+      let selectedMonth = new Date().getMonth();
+      let selectedYear = new Date().getFullYear();
+
+      document.getElementById("date").valueAsDate = new Date();
+      document.getElementById("expenseDate").valueAsDate = new Date();
+      reminderViewDate.setHours(0, 0, 0, 0);
+      document.getElementById("reminderDatePicker").value = reminderViewDate
+        .toISOString()
+        .split("T")[0];
+      document.getElementById("todayDateLabel").innerText = formatDateDisplay(
+        new Date(),
+      );
+
+      function parseAnyDate(dateStr) {
+        if (!dateStr) return null;
+        if (dateStr instanceof Date) return dateStr;
+        if (typeof dateStr === "string" && dateStr.includes("/")) {
+          const parts = dateStr.split("/");
+          if (parts.length !== 3) return null;
+          // Saved spreadsheet dates use the Indian DD/MM/YYYY convention.
+          // Also accept YYYY/MM/DD if an older tab uses that layout.
+          if (parts[0].length === 4)
+            return new Date(parts[0], Number(parts[1]) - 1, parts[2]);
+          return new Date(parts[2], Number(parts[1]) - 1, parts[0]);
         }
-        render();
-      }
-      function setPage(next) {
-        page = next;
-        document
-          .querySelectorAll(".nav")
-          .forEach((button) =>
-            button.classList.toggle("active", button.dataset.page === page),
-          );
-        render();
-      }
-      document
-        .querySelectorAll(".nav")
-        .forEach(
-          (button) => (button.onclick = () => setPage(button.dataset.page)),
-        );
-      document
-        .querySelectorAll("[data-close]")
-        .forEach(
-          (button) =>
-            (button.onclick = () =>
-              document.getElementById(button.dataset.close).close()),
-        );
-
-      function render() {
-        $("#title").textContent =
-          page === "rooms" ? "Rooms" : page[0].toUpperCase() + page.slice(1);
-        $("#subtitle").textContent =
-          page === "renewals"
-            ? "Due and overdue rent requiring attention"
-            : "Live data from Firebase Realtime Database";
-        $("#tenantButton").style.display = page === "tenants" ? "" : "none";
-        $("#roomButton").style.display = page === "rooms" ? "" : "none";
-        const view = $("#view");
-        if (page === "dashboard") {
-          const active = store.tenants.filter(
-            (item) => item.status === "active",
-          ).length;
-          const boys = store.tenants.filter(
-            (item) => item.status === "active" && item.gender === "boys",
-          ).length;
-          const girls = store.tenants.filter(
-            (item) => item.status === "active" && item.gender === "girls",
-          ).length;
-          const due = store.payments.reduce(
-            (sum, item) => sum + (item.amountDue || 0),
-            0,
-          );
-          const paid = store.payments.reduce(
-            (sum, item) => sum + (item.amountPaid || 0),
-            0,
-          );
-          view.innerHTML = `<div class="grid"><div class="card">Active tenants<b>${active}</b></div><div class="card">Boys staying<b>${boys}</b></div><div class="card">Girls staying<b>${girls}</b></div><div class="card">Outstanding<b>${money(due - paid)}</b></div></div>`;
-        } else if (page === "tenants") {
-          const tenantTable = (gender) =>
-            store.tenants
-              .filter((tenant) => tenant.gender === gender)
-              .map(
-                (tenant) =>
-                  `<tr><td><b>${esc(tenant.name)}</b><br><small>${esc(tenant.tenantCode)}</small></td><td>${esc(tenant.mobile)}</td><td>${money(tenant.monthlyRent)}</td><td>${badge(tenant.status)}</td><td><button class="btn light" data-edit-tenant="${tenant.id}">Edit</button> ${tenant.status === "active" ? `<button class="btn light" data-left="${tenant.id}">Mark left</button> ` : ""}<button class="btn light" data-delete-tenant="${tenant.id}">Remove</button></td></tr>`,
-              )
-              .join("") ||
-            '<tr><td colspan="5" class="empty">No tenants added.</td></tr>';
-          view.innerHTML = `<div class="panel table-wrap"><div class="top"><h3>Boys tenants</h3><button class="btn" data-add-tenant="boys">+ Add boy</button></div><table class="table"><thead><tr><th>Tenant</th><th>Mobile</th><th>Monthly rent</th><th>Status</th><th>Actions</th></tr></thead><tbody>${tenantTable("boys")}</tbody></table></div><div class="panel table-wrap"><div class="top"><h3>Girls tenants</h3><button class="btn" data-add-tenant="girls">+ Add girl</button></div><table class="table"><thead><tr><th>Tenant</th><th>Mobile</th><th>Monthly rent</th><th>Status</th><th>Actions</th></tr></thead><tbody>${tenantTable("girls")}</tbody></table></div>`;
-          document
-            .querySelectorAll("[data-add-tenant]")
-            .forEach(
-              (button) =>
-                (button.onclick = () => openTenant(button.dataset.addTenant)),
-            );
-          document
-            .querySelectorAll("[data-edit-tenant]")
-            .forEach(
-              (button) =>
-                (button.onclick = () => editTenant(button.dataset.editTenant)),
-            );
-          document
-            .querySelectorAll("[data-left]")
-            .forEach(
-              (button) =>
-                (button.onclick = () => openLeft(button.dataset.left)),
-            );
-          document
-            .querySelectorAll("[data-delete-tenant]")
-            .forEach(
-              (button) =>
-                (button.onclick = () =>
-                  confirmDelete("tenant", button.dataset.deleteTenant)),
-            );
-        } else if (page === "rooms") {
-          const roomTable = (gender) =>
-            store.rooms
-              .filter((room) => room.gender === gender)
-              .map((room) => {
-                const occupied = store.tenants.filter(
-                  (tenant) =>
-                    tenant.status === "active" && tenant.roomId === room.id,
-                ).length;
-                return `<tr><td>${esc(room.roomNumber)}</td><td>${esc(room.floor)}</td><td>${occupied} / ${esc(room.capacity)}</td><td>${money(room.monthlyRent)}</td><td><button class="btn light" data-edit-room="${room.id}">Edit</button> <button class="btn light" data-delete-room="${room.id}">Delete</button></td></tr>`;
-              })
-              .join("") ||
-            '<tr><td colspan="5" class="empty">No rooms added.</td></tr>';
-          view.innerHTML = `<div class="panel table-wrap"><h3>Boys rooms</h3><table class="table"><thead><tr><th>Room</th><th>Floor</th><th>Occupancy</th><th>Base rent</th><th>Actions</th></tr></thead><tbody>${roomTable("boys")}</tbody></table></div><div class="panel table-wrap"><h3>Girls rooms</h3><table class="table"><thead><tr><th>Room</th><th>Floor</th><th>Occupancy</th><th>Base rent</th><th>Actions</th></tr></thead><tbody>${roomTable("girls")}</tbody></table></div>`;
-          document
-            .querySelectorAll("[data-edit-room]")
-            .forEach(
-              (button) =>
-                (button.onclick = () => editRoom(button.dataset.editRoom)),
-            );
-          document
-            .querySelectorAll("[data-delete-room]")
-            .forEach(
-              (button) =>
-                (button.onclick = () =>
-                  confirmDelete("room", button.dataset.deleteRoom)),
-            );
-        } else if (page === "renewals") {
-          const anchor = new Date(renewalAnchor);
-          anchor.setHours(0, 0, 0, 0);
-          const start = new Date(anchor);
-          start.setDate(start.getDate() - 3);
-          const end = new Date(anchor);
-          end.setDate(end.getDate() + 3);
-          const rows = store.tenants
-            .filter((tenant) => tenant.status === "active")
-            .map((tenant) => {
-              const year = anchor.getFullYear(),
-                month = anchor.getMonth() + 1;
-              const payment = store.payments.find(
-                (item) =>
-                  item.tenantId === tenant.id &&
-                  item.billingMonth === month &&
-                  item.billingYear === year,
-              );
-              const dueDay = Math.min(
-                Number(tenant.dueDateDay || 5),
-                new Date(year, month, 0).getDate(),
-              );
-              const dueDate = new Date(year, month - 1, dueDay);
-              dueDate.setHours(0, 0, 0, 0);
-              const amountDue = Number(
-                  payment?.amountDue ?? tenant.monthlyRent,
-                ),
-                amountPaid = Number(payment?.amountPaid || 0),
-                outstanding = amountDue - amountPaid;
-              const status =
-                outstanding <= 0
-                  ? "paid"
-                  : dueDate < anchor
-                    ? "overdue"
-                    : "pending";
-              const text = encodeURIComponent(
-                [
-                  `Hello ${tenant.name},`,
-                  `This is a reminder from Happy Homes PG Services that your PG rent of ${money(outstanding)} will be due on ${dueDate.toLocaleDateString("en-IN")}.`,
-                  "Please pay the rent before the due date.",
-                  "Regards,\nHappy Homes PG Services",
-                ].join("\n\n"),
-              );
-              const action =
-                status === "paid"
-                  ? `<button class="btn light" data-edit-payment="${payment?.id || ""}" data-tenant="${tenant.id}">Edit payment</button>`
-                  : `<a class="btn" target="_blank" href="https://wa.me/91${esc(tenant.mobile)}?text=${text}">WhatsApp</a> <button class="btn light" data-pay="${payment?.id || ""}" data-tenant="${tenant.id}" data-balance="${outstanding}">Record payment</button>`;
-              return dueDate >= start && dueDate <= end
-                ? `<tr><td>${esc(tenant.name)}</td><td>${esc(tenant.gender || "-")}</td><td>${esc(tenant.mobile)}</td><td>${dueDate.toLocaleDateString("en-IN")}</td><td>${money(outstanding)}</td><td>${badge(status)}</td><td>${action}</td></tr>`
-                : "";
-            })
-            .filter(Boolean)
-            .join("");
-          view.innerHTML = `<div class="panel"><div class="top"><div><h3>Renewal window</h3><p class="muted">${start.toLocaleDateString("en-IN")} to ${end.toLocaleDateString("en-IN")}</p></div><div class="actions"><button class="btn light" data-renewal-shift="-1">Previous date</button><input id="renewalDate" type="date" value="${anchor.toISOString().slice(0, 10)}" style="width:auto;margin:0"/><button class="btn light" data-renewal-shift="1">Next date</button></div></div></div><div class="panel table-wrap"><table class="table"><thead><tr><th>Tenant</th><th>Section</th><th>Mobile</th><th>Due date</th><th>Outstanding</th><th>Status</th><th>Action</th></tr></thead><tbody>${rows || '<tr><td colspan="7" class="empty">No renewals in this seven-day window.</td></tr>'}</tbody></table></div>`;
-          document
-            .querySelectorAll("[data-pay]")
-            .forEach(
-              (button) =>
-                (button.onclick = () =>
-                  openPayment(
-                    button.dataset.pay,
-                    button.dataset.tenant,
-                    button.dataset.balance,
-                  )),
-            );
-          document
-            .querySelectorAll("[data-edit-payment]")
-            .forEach(
-              (button) =>
-                (button.onclick = () =>
-                  openPayment(
-                    button.dataset.editPayment,
-                    button.dataset.tenant,
-                    0,
-                  )),
-            );
-          document.querySelectorAll("[data-renewal-shift]").forEach(
-            (button) =>
-              (button.onclick = () => {
-                renewalAnchor.setDate(
-                  renewalAnchor.getDate() + Number(button.dataset.renewalShift),
-                );
-                render();
-              }),
-          );
-          $("#renewalDate").onchange = (event) => {
-            renewalAnchor = new Date(`${event.target.value}T00:00:00`);
-            render();
-          };
-        } else if (page === "payments") {
-          const byGender = (list, gender, field) =>
-            list
-              .filter(
-                (item) =>
-                  (item.gender ||
-                    store.tenants.find((tenant) => tenant.id === item.tenantId)
-                      ?.gender) === gender,
-              )
-              .reduce((sum, item) => sum + Number(item[field] || 0), 0);
-          const boysReceipt = byGender(store.payments, "boys", "amountPaid"),
-            girlsReceipt = byGender(store.payments, "girls", "amountPaid");
-          const boysExpense = byGender(store.expenditures, "boys", "amount"),
-            girlsExpense = byGender(store.expenditures, "girls", "amount");
-          const paymentRows = store.payments
-            .map(
-              (item) =>
-                `<tr><td>${esc(item.tenantName)}</td><td>${esc(item.gender || store.tenants.find((tenant) => tenant.id === item.tenantId)?.gender || "-")}</td><td>${esc(item.billingMonth)}/${esc(item.billingYear)}</td><td>${money(item.amountDue)}</td><td>${money(item.amountPaid)}</td><td>${badge(item.status)}</td><td><button class="btn light" data-edit-payment="${item.id}" data-tenant="${item.tenantId}">Edit</button></td></tr>`,
-            )
-            .join("");
-          const expenseRows = store.expenditures
-            .map(
-              (item) =>
-                `<tr><td>${esc(item.date)}</td><td>${esc(item.gender)}</td><td>${esc(item.description)}</td><td>${money(item.amount)}</td><td>${esc(item.notes || "-")}</td></tr>`,
-            )
-            .join("");
-          view.innerHTML = `<div class="grid"><div class="card">Boys revenue<b>${money(boysReceipt)}</b><span class="muted">Rent receipts till date</span></div><div class="card">Girls revenue<b>${money(girlsReceipt)}</b><span class="muted">Rent receipts till date</span></div><div class="card">Boys expenditure<b>${money(boysExpense)}</b><span class="muted">Manually recorded</span></div><div class="card">Girls expenditure<b>${money(girlsExpense)}</b><span class="muted">Manually recorded</span></div></div><div class="panel table-wrap"><div class="top"><h3>Monthly payments till date</h3></div><table class="table"><thead><tr><th>Tenant</th><th>Section</th><th>Month</th><th>Amount due</th><th>Receipt</th><th>Status</th><th>Action</th></tr></thead><tbody>${paymentRows || '<tr><td colspan="7" class="empty">No payment records yet.</td></tr>'}</tbody></table></div><div class="panel table-wrap"><div class="top"><h3>Expenditure</h3><button class="btn" id="expenseButton">+ Add expenditure</button></div><table class="table"><thead><tr><th>Date</th><th>Section</th><th>Description</th><th>Expenditure</th><th>Notes</th></tr></thead><tbody>${expenseRows || '<tr><td colspan="5" class="empty">No expenditure added.</td></tr>'}</tbody></table></div>`;
-          $("#expenseButton").onclick = () => {
-            $("#expenseForm").date.value = today();
-            $("#expenseDialog").showModal();
-          };
-          document
-            .querySelectorAll("[data-edit-payment]")
-            .forEach(
-              (button) =>
-                (button.onclick = () =>
-                  openPayment(
-                    button.dataset.editPayment,
-                    button.dataset.tenant,
-                    0,
-                  )),
-            );
-        }
+        return new Date(dateStr);
       }
 
-      function roomOptions(gender = "", selectedRoomId = "") {
-        return store.rooms
-          .filter((room) => {
-            const occupied = store.tenants.filter(
-              (tenant) =>
-                tenant.status === "active" && tenant.roomId === room.id,
-            ).length;
-            return (
-              (!gender || room.gender === gender) &&
-              (room.id === selectedRoomId ||
-                occupied < Number(room.capacity || 0))
-            );
-          })
-          .map((room) => {
-            const occupied = store.tenants.filter(
-              (tenant) =>
-                tenant.status === "active" && tenant.roomId === room.id,
-            ).length;
-            return `<option value="${room.id}" ${room.id === selectedRoomId ? "selected" : ""}>${esc(`${room.gender} - Room ${room.roomNumber} (${occupied}/${room.capacity})`)}</option>`;
-          })
-          .join("");
+      function formatDateDisplay(dateStr) {
+        const dObj = parseAnyDate(dateStr);
+        if (!dObj || isNaN(dObj)) return dateStr;
+        return `${String(dObj.getDate()).padStart(2, "0")}/${String(dObj.getMonth() + 1).padStart(2, "0")}/${dObj.getFullYear()}`;
       }
-      function openTenant(gender = "") {
-        const form = $("#tenantForm");
-        form.reset();
-        form.dataset.tenantId = "";
-        form.dataset.originalRoomId = "";
-        $("#tenantDialog h2").textContent = "Add tenant";
-        $("#tenantRoom").innerHTML = roomOptions(gender);
-        form.joinDate.value = today();
-        $("#tenantDialog").showModal();
-      }
-      $("#tenantButton").onclick = () => openTenant();
-      $("#roomButton").onclick = () => {
-        $("#roomForm").reset();
-        $("#roomForm").dataset.roomId = "";
-        $("#roomDialog h2").textContent = "Add room";
-        $("#roomDialog").showModal();
-      };
 
-      $("#tenantForm").onsubmit = async (event) => {
-        event.preventDefault();
-        const data = Object.fromEntries(new FormData(event.currentTarget)),
-          form = event.currentTarget,
-          room = store.rooms.find((item) => item.id === data.roomId),
-          tenantId = form.dataset.tenantId;
-        const occupied = store.tenants.filter(
-          (item) =>
-            item.status === "active" &&
-            item.roomId === data.roomId &&
-            item.id !== tenantId,
-        ).length;
-        if (!room || occupied >= Number(room.capacity)) {
-          $("#tenantError").textContent =
-            "Select a room with available capacity.";
+      function formatCurrency(value) {
+        return "Rs. " + Number(value || 0).toLocaleString("en-IN");
+      }
+
+      function getSectionLabel(value) {
+        if (!value) return "";
+        if (value === "C") return "Floating";
+        return `Section ${value}`;
+      }
+
+      function getRecordSection(member) {
+        if (member.section) return String(member.section);
+        if (
+          String(member.seatNo || "")
+            .toLowerCase()
+            .includes("floating")
+        )
+          return "C";
+        const idParts = String(member.memNo || "").split("-");
+        return idParts[0] || "";
+      }
+
+      function getRecordSeat(member) {
+        if (member.seatNo) return String(member.seatNo);
+        const idParts = String(member.memNo || "").split("-");
+        return idParts[1] || "";
+      }
+
+      function buildSeatOptions(selectedSeat = "") {
+        const section = document.getElementById("section").value;
+        const seatSelect = document.getElementById("seatNo");
+        seatSelect.innerHTML = "";
+
+        if (!section) {
+          seatSelect.innerHTML =
+            '<option value="">-- Select Section First --</option>';
+          updateMemberId();
           return;
         }
-        const changes = {};
-        if (tenantId) {
-          changes[`tenants/${tenantId}`] = {
-            ...store.tenants.find((item) => item.id === tenantId),
-            id: undefined,
-            name: data.name,
-            mobile: data.mobile,
-            email: data.email || null,
-            gender: room.gender,
-            roomId: data.roomId,
-            joinDate: data.joinDate,
-            monthlyRent: Number(data.monthlyRent),
-            dueDateDay: Number(data.dueDateDay),
-            notes: data.notes || null,
-            updatedAt: serverTimestamp(),
-          };
-          delete changes[`tenants/${tenantId}`].id;
-          if (form.dataset.originalRoomId !== data.roomId) {
-            const activeAllocation = store.allocations.find(
-              (item) => item.tenantId === tenantId && !item.endDate,
+
+        if (section === "C") {
+          seatSelect.innerHTML =
+            '<option value="Floating/Random">Floating / Random Seat</option>';
+          seatSelect.value = "Floating/Random";
+          updateMemberId();
+          return;
+        }
+
+        seatSelect.innerHTML =
+          '<option value="">-- Choose Seat No. --</option>';
+        for (let i = 1; i <= SECTION_SEATS[section]; i += 1) {
+          const option = document.createElement("option");
+          option.value = String(i);
+          option.textContent = `${section}-${i}`;
+          seatSelect.appendChild(option);
+        }
+        if (selectedSeat) seatSelect.value = String(selectedSeat);
+        updateMemberId();
+      }
+
+      function buildPlanOptions(selectedPackage = "") {
+        const section = document.getElementById("section").value;
+        const packageSelect = document.getElementById("package");
+        const plans = PLAN_AMOUNTS[section];
+        packageSelect.innerHTML = plans
+          ? '<option value="">-- Choose Membership Plan --</option>'
+          : '<option value="">-- Choose Section First --</option>';
+
+        if (!plans) return;
+        Object.entries(plans).forEach(([months, amount]) => {
+          const option = document.createElement("option");
+          option.value = months;
+          option.textContent = `${months} Month${months === "1" ? "" : "s"} - Rs. ${amount.toLocaleString("en-IN")}`;
+          option.dataset.amount = amount;
+          option.selected = String(selectedPackage) === months;
+          packageSelect.appendChild(option);
+        });
+      }
+
+      function updateMemberId() {
+        // Membership numbers are entered manually for every section. Seats can
+        // be shared, so a selected seat must never replace this value.
+        return document.getElementById("memNo").value;
+      }
+
+      function updateTotalAmount() {
+        const fee = Number(document.getElementById("membershipFee").value || 0);
+        const security = isRenewalMode
+          ? 0
+          : Number(
+              document.getElementById("securityAmount").value ||
+                SECURITY_AMOUNT,
             );
-            if (activeAllocation)
-              changes[`allocations/${activeAllocation.id}/endDate`] = today();
-            const allocationId = push(ref(db, "allocations")).key;
-            changes[`allocations/${allocationId}`] = {
-              tenantId,
-              roomId: data.roomId,
-              startDate: today(),
-              endDate: null,
-              createdAt: serverTimestamp(),
-            };
-          }
+        document.getElementById("securityAmount").value = security;
+        document.getElementById("amt").value =
+          fee || security ? fee + security : "";
+      }
+
+      function getAadharLink(label, dataUrl, fileName) {
+        if (!dataUrl) return "N/A";
+        const safeName = (fileName || label).replace(/"/g, "&quot;");
+        return `<a class="link-btn" href="${dataUrl}" download="${safeName}" target="_blank">${label}</a>`;
+      }
+
+      function getLatestMemberships() {
+        const latest = {};
+        cloudData.forEach((m) => {
+          const exp = parseAnyDate(m.expiry);
+          if (!exp || !m.memNo) return;
+          if (!latest[m.memNo] || exp > parseAnyDate(latest[m.memNo].expiry))
+            latest[m.memNo] = m;
+        });
+        return Object.values(latest);
+      }
+
+      function buildReminderMessage(member) {
+        return `Hello ${member.name || ""}, this is a reminder from Reading Cafe Library. Your library membership will expire on ${formatDateDisplay(member.expiry)}. Please renew before the expiry date to continue using the library facilities. \n Regards \n Reading Cafe Library Team`;
+      }
+
+      function getReminderLink(member) {
+        if (!member.contact) return "#";
+        return `https://wa.me/91${member.contact.toString().replace(/\D/g, "")}?text=${encodeURIComponent(buildReminderMessage(member))}`;
+      }
+
+      function openReminderCalendar() {
+        const picker = document.getElementById("reminderDatePicker");
+        if (picker.showPicker) {
+          picker.showPicker();
         } else {
-          const newTenantId = push(ref(db, "tenants")).key,
-            allocationId = push(ref(db, "allocations")).key;
-          changes[`tenants/${newTenantId}`] = {
-            tenantCode: "T-" + Date.now().toString().slice(-6),
-            name: data.name,
-            mobile: data.mobile,
-            email: data.email || null,
-            gender: room.gender,
-            roomId: data.roomId,
-            joinDate: data.joinDate,
-            status: "active",
-            monthlyRent: Number(data.monthlyRent),
-            dueDateDay: Number(data.dueDateDay),
-            notes: data.notes || null,
-            createdAt: serverTimestamp(),
-          };
-          changes[`allocations/${allocationId}`] = {
-            tenantId: newTenantId,
-            roomId: data.roomId,
-            startDate: data.joinDate,
-            endDate: null,
-            createdAt: serverTimestamp(),
-          };
+          picker.focus();
+          picker.click();
         }
+      }
+
+      function changeReminderDateFromPicker() {
+        const pickerValue = document.getElementById("reminderDatePicker").value;
+        if (!pickerValue) return;
+        reminderViewDate = new Date(pickerValue);
+        reminderViewDate.setHours(0, 0, 0, 0);
+        renderUpcomingRenewals();
+      }
+
+      function changeReminderDate(offset) {
+        reminderViewDate.setDate(reminderViewDate.getDate() + offset);
+        reminderViewDate.setHours(0, 0, 0, 0);
+        renderUpcomingRenewals();
+      }
+
+      function renderUpcomingRenewals() {
+        const alertBody = document.getElementById("publicAlertBody");
+        const picker = document.getElementById("reminderDatePicker");
+        const targetDate = new Date(reminderViewDate);
+        targetDate.setHours(0, 0, 0, 0);
+        picker.value = targetDate.toISOString().split("T")[0];
+        document.getElementById("todayDateLabel").innerText =
+          formatDateDisplay(targetDate);
+        alertBody.innerHTML = "";
+
+        const upcomingMembers = getLatestMemberships()
+          .filter((member) => {
+            const expiry = parseAnyDate(member.expiry);
+            if (!expiry) return false;
+            expiry.setHours(0, 0, 0, 0);
+            return expiry.getTime() === targetDate.getTime();
+          })
+          .sort((a, b) => parseAnyDate(a.expiry) - parseAnyDate(b.expiry));
+
+        upcomingMembers.forEach((member) => {
+          const waLink = getReminderLink(member);
+          alertBody.innerHTML += `<tr>
+                <td><b>${member.name || ""}</b></td>
+                <td>${getRecordSeat(member) || ""}</td>
+                <td><span class="badge-today">${formatDateDisplay(member.expiry)}</span></td>
+                <td>
+                    <button class="btn-action" style="background:var(--success)" onclick="renewFromAdmin('${member.memNo}')">Renew</button>
+                    <button class="btn-action" style="background:#25D366" onclick="window.open('${waLink}', '_blank')">Remind</button>
+                </td>
+            </tr>`;
+        });
+
+        if (!alertBody.innerHTML) {
+          alertBody.innerHTML =
+            '<tr><td colspan="4" style="text-align:center; color:#64748b;">No renewals on the selected date.</td></tr>';
+        }
+      }
+
+      function checkDuplicateID() {
+        updateMemberId();
+        const warning = document.getElementById("id-warning");
+        const saveBtn = document.getElementById("saveBtn");
+        // Seat numbers are intentionally not unique: more than one member may
+        // be allotted to the same seat.
+        warning.style.display = "none";
+        saveBtn.disabled = false;
+      }
+
+      function buildMonthNav() {
+        const months = [
+          "Jan",
+          "Feb",
+          "Mar",
+          "Apr",
+          "May",
+          "Jun",
+          "Jul",
+          "Aug",
+          "Sep",
+          "Oct",
+          "Nov",
+          "Dec",
+        ];
+        ["monthNav", "expenseMonthNav"].forEach((navId) => {
+          const nav = document.getElementById(navId);
+          nav.innerHTML = "";
+          const previous = document.createElement("button");
+          previous.type = "button";
+          previous.className = "month-pill";
+          previous.style.width = "auto";
+          previous.innerText = "‹ Previous";
+          previous.onclick = () => changeSelectedMonth(-1);
+          nav.appendChild(previous);
+
+          months.forEach((m, i) => {
+            const btn = document.createElement("div");
+            btn.className = `month-pill ${i === selectedMonth ? "active" : ""}`;
+            btn.innerText = m;
+            btn.onclick = () => {
+              selectedMonth = i;
+              buildMonthNav();
+              renderAdmin();
+              renderExpenses();
+            };
+            nav.appendChild(btn);
+          });
+
+          const next = document.createElement("button");
+          next.type = "button";
+          next.className = "month-pill";
+          next.style.width = "auto";
+          next.innerText = "Next ›";
+          next.onclick = () => changeSelectedMonth(1);
+          nav.appendChild(next);
+        });
+      }
+
+      function changeSelectedMonth(offset) {
+        const selectedDate = new Date(selectedYear, selectedMonth + offset, 1);
+        selectedMonth = selectedDate.getMonth();
+        selectedYear = selectedDate.getFullYear();
+        buildMonthNav();
+        renderAdmin();
+        renderExpenses();
+      }
+
+      function switchAdminSection(section) {
+        const isAnalytics = section === "analytics";
+        document
+          .getElementById("analyticsSection")
+          .classList.toggle("hidden", !isAnalytics);
+        document
+          .getElementById("expensesSection")
+          .classList.toggle("hidden", isAnalytics);
+        document
+          .getElementById("adminAnalyticsTab")
+          .classList.toggle("active", isAnalytics);
+        document
+          .getElementById("adminExpensesTab")
+          .classList.toggle("active", !isAnalytics);
+        if (!isAnalytics) renderExpenses();
+      }
+
+      function loadExpenses() {
         try {
-          await update(ref(db), changes);
-          $("#tenantDialog").close();
-          form.reset();
-          await load();
-          notify(tenantId ? "Tenant updated." : "Tenant added successfully.");
-        } catch {
-          $("#tenantError").textContent =
-            "Could not save. Check room capacity and database rules.";
-        }
-      };
-      $("#roomForm").onsubmit = async (event) => {
-        event.preventDefault();
-        const data = Object.fromEntries(new FormData(event.currentTarget)),
-          roomId =
-            event.currentTarget.dataset.roomId || push(ref(db, "rooms")).key;
-        await update(ref(db, `rooms/${roomId}`), {
-          ...data,
-          capacity: Number(data.capacity),
-          monthlyRent: Number(data.monthlyRent || 0),
-          createdAt: serverTimestamp(),
-        });
-        $("#roomDialog").close();
-        event.currentTarget.reset();
-        await load();
-        notify("Room saved.");
-      };
-      function openPayment(paymentId, tenantId, balance) {
-        const form = $("#paymentForm"),
-          old = store.payments.find((item) => item.id === paymentId),
-          now = new Date();
-        form.reset();
-        form.paymentId.value = paymentId || "";
-        form.dataset.tenantId = tenantId;
-        $("#paymentTitle").textContent = old
-          ? "Edit payment"
-          : "Record payment";
-        form.billingMonth.value = old?.billingMonth || now.getMonth() + 1;
-        form.billingYear.value = old?.billingYear || now.getFullYear();
-        form.amount.value = old?.amountPaid ?? balance;
-        form.status.value = old?.status || "paid";
-        form.datePaid.value = old?.datePaid || today();
-        form.method.value = old?.paymentMethod || "cash";
-        form.notes.value = old?.notes || "";
-        $("#paymentDialog").showModal();
-      }
-      $("#paymentForm").onsubmit = async (event) => {
-        event.preventDefault();
-        const data = Object.fromEntries(new FormData(event.currentTarget));
-        const old = store.payments.find((item) => item.id === data.paymentId),
-          tenant = store.tenants.find(
-            (item) => item.id === event.currentTarget.dataset.tenantId,
+          expenseData = JSON.parse(
+            localStorage.getItem(EXPENSE_STORAGE_KEY) || "[]",
           );
-        const due = Number(old?.amountDue ?? data.amount),
-          requested = Number(data.amount),
-          unpaid = data.status === "pending" || data.status === "overdue";
-        let paid = unpaid ? 0 : requested,
-          status = data.status;
-        if (status === "paid") paid = due;
-        if (status === "partially_paid" && (paid <= 0 || paid >= due)) {
-          notify(
-            "For partial payment, enter an amount between zero and the amount due.",
-          );
-          return;
+        } catch (e) {
+          expenseData = [];
         }
-        if (paid > due) {
-          notify("Payment cannot exceed amount due.");
-          return;
-        }
-        const record = {
-          tenantId: event.currentTarget.dataset.tenantId,
-          tenantName: tenant?.name || old?.tenantName || "",
-          gender: tenant?.gender || old?.gender || "",
-          billingMonth: Number(data.billingMonth),
-          billingYear: Number(data.billingYear),
-          amountDue: due,
-          amountPaid: paid,
-          datePaid: unpaid ? null : data.datePaid || today(),
-          paymentMethod: unpaid ? null : data.method,
-          notes: data.notes || null,
-          status,
-          updatedAt: serverTimestamp(),
-        };
-        if (old)
-          await update(ref(db, `payments/${old.id}`), {
-            ...record,
-            correctedAt: unpaid ? serverTimestamp() : old.correctedAt || null,
-          });
-        else {
-          const paymentId = push(ref(db, "payments")).key;
-          await set(ref(db, `payments/${paymentId}`), {
-            ...record,
-            createdAt: serverTimestamp(),
-          });
-        }
-        $("#paymentDialog").close();
-        await load();
-        notify("Payment saved.");
-      };
-      $("#expenseForm").onsubmit = async (event) => {
-        event.preventDefault();
-        const data = Object.fromEntries(new FormData(event.currentTarget)),
-          expenseId = push(ref(db, "expenditures")).key;
-        await set(ref(db, `expenditures/${expenseId}`), {
-          ...data,
-          amount: Number(data.amount),
-          createdAt: serverTimestamp(),
-        });
-        $("#expenseDialog").close();
-        event.currentTarget.reset();
-        await load();
-        notify("Expenditure saved.");
-      };
-      function editRoom(id) {
-        const room = store.rooms.find((item) => item.id === id),
-          form = $("#roomForm");
-        form.dataset.roomId = id;
-        form.roomNumber.value = room.roomNumber || "";
-        form.floor.value = room.floor || "";
-        form.gender.value = room.gender || "boys";
-        form.capacity.value = room.capacity || "";
-        form.monthlyRent.value = room.monthlyRent || "";
-        $("#roomDialog h2").textContent = "Edit room";
-        $("#roomDialog").showModal();
       }
-      function editTenant(id) {
-        const tenant = store.tenants.find((item) => item.id === id),
-          form = $("#tenantForm");
-        form.dataset.tenantId = id;
-        form.dataset.originalRoomId = tenant.roomId || "";
-        $("#tenantDialog h2").textContent = "Edit tenant";
-        $("#tenantRoom").innerHTML = roomOptions(tenant.gender, tenant.roomId);
-        form.name.value = tenant.name || "";
-        form.mobile.value = tenant.mobile || "";
-        form.email.value = tenant.email || "";
-        form.joinDate.value = tenant.joinDate || today();
-        form.monthlyRent.value = tenant.monthlyRent || "";
-        form.dueDateDay.value = tenant.dueDateDay || 5;
-        form.notes.value = tenant.notes || "";
-        $("#tenantError").textContent = "";
-        $("#tenantDialog").showModal();
+
+      function saveExpensesToStorage() {
+        localStorage.setItem(EXPENSE_STORAGE_KEY, JSON.stringify(expenseData));
       }
-      function openLeft(id) {
-        const form = $("#leftForm");
-        form.tenantId.value = id;
-        form.leaveDate.value = today();
-        $("#leftDialog").showModal();
-      }
-      $("#leftForm").onsubmit = async (event) => {
-        event.preventDefault();
-        const data = Object.fromEntries(new FormData(event.currentTarget)),
-          allocation = store.allocations.find(
-            (item) => item.tenantId === data.tenantId && !item.endDate,
-          ),
-          changes = {};
-        changes[`tenants/${data.tenantId}/status`] = "left";
-        changes[`tenants/${data.tenantId}/leaveDate`] = data.leaveDate;
-        if (allocation)
-          changes[`allocations/${allocation.id}/endDate`] = data.leaveDate;
-        await update(ref(db), changes);
-        $("#leftDialog").close();
-        await load();
-        notify("Tenant marked as left.");
-      };
-      let deleteTarget = null;
-      function confirmDelete(type, id) {
-        deleteTarget = { type, id };
-        const labels = {
-          tenant: "tenant and their allocation history",
-          room: "room",
-        };
-        $("#confirmTitle").textContent = `Delete ${labels[type]}`;
-        $("#confirmText").textContent = "This action cannot be undone.";
-        $("#confirmDialog").showModal();
-      }
-      $("#confirmForm").onsubmit = async (event) => {
-        event.preventDefault();
-        const { type, id } = deleteTarget,
-          changes = {};
-        if (type === "tenant") {
-          changes[`tenants/${id}`] = null;
-          store.allocations
-            .filter((item) => item.tenantId === id)
-            .forEach((item) => (changes[`allocations/${item.id}`] = null));
-        }
-        if (type === "room") {
-          if (
-            store.tenants.some(
-              (item) => item.status === "active" && item.roomId === id,
-            )
-          ) {
-            notify("Mark the room tenants as left before deleting this room.");
-            $("#confirmDialog").close();
+
+      function readBillFile(file) {
+        return new Promise((resolve, reject) => {
+          if (!file) {
+            resolve(null);
             return;
           }
-          changes[`rooms/${id}`] = null;
+          const reader = new FileReader();
+          reader.onload = () =>
+            resolve({
+              name: file.name,
+              dataUrl: reader.result,
+              type: file.type,
+            });
+          reader.onerror = reject;
+          reader.readAsDataURL(file);
+        });
+      }
+
+      async function loadCloudData() {
+        try {
+          const response = await fetch(
+            `${CLOUD_URL}?action=getRecords&_=${Date.now()}`,
+          );
+          const parsed = await response.json();
+          if (parsed && parsed.error) throw new Error(parsed.error);
+          return Array.isArray(parsed) ? parsed : [];
+        } catch (fallbackError) {
+          console.warn("JSON fetch failed, trying JSONP proxy...");
+          return await loadCloudDataJsonp();
         }
-        await update(ref(db), changes);
-        $("#confirmDialog").close();
-        await load();
-        notify("Deleted.");
+      }
+
+      function loadCloudDataJsonp() {
+        return new Promise((resolve, reject) => {
+          const callbackName = `readingCafeCloud_${Date.now()}_${Math.random()
+            .toString(36)
+            .slice(2)}`;
+          const script = document.createElement("script");
+          const cleanup = () => {
+            delete window[callbackName];
+            script.remove();
+          };
+          const timeout = setTimeout(() => {
+            cleanup();
+            reject(
+              new Error(
+                "Cloud script did not respond. Check Apps Script deployment and access.",
+              ),
+            );
+          }, 12000);
+
+          window[callbackName] = (data) => {
+            clearTimeout(timeout);
+            cleanup();
+            resolve(data);
+          };
+
+          script.onerror = () => {
+            clearTimeout(timeout);
+            cleanup();
+            reject(
+              new Error(
+                "Failed to load cloud data. Check the Apps Script web URL.",
+              ),
+            );
+          };
+          script.src = `${CLOUD_URL}?callback=${encodeURIComponent(
+            callbackName,
+          )}&_=${Date.now()}`;
+          document.body.appendChild(script);
+        });
+      }
+
+      async function fetchFromCloud() {
+        try {
+          cloudData = await loadCloudData();
+          const status = document.getElementById("status");
+          if (status && cloudData.length === 0) {
+            status.style.color = "var(--success)";
+            status.innerText =
+              "Connected to Google Sheets. No membership records have been saved yet.";
+          }
+          renderUpcomingRenewals();
+          renderAdmin();
+        } catch (e) {
+          console.error("Sync Error", e);
+          const status = document.getElementById("status");
+          if (status) {
+            status.style.color = "var(--danger)";
+            status.innerText = e.message || "Unable to load cloud data.";
+          }
+          renderUpcomingRenewals();
+          renderAdmin();
+        }
+      }
+
+      // A regular browser form submission is allowed from local HTML files and
+      // does not depend on cross-origin fetch permissions or Apps Script's
+      // redirect behaviour. The hidden frame keeps the visitor on this page.
+      function submitCloudPayload(data) {
+        return new Promise((resolve, reject) => {
+          const frameName = `readingCafeSave_${Date.now()}`;
+          const frame = document.createElement("iframe");
+          const form = document.createElement("form");
+          const payload = document.createElement("input");
+          let requestSent = false;
+          let completed = false;
+          const timeout = setTimeout(() => {
+            cleanup();
+            reject(
+              new Error(
+                "Save request timed out. Check the Apps Script deployment.",
+              ),
+            );
+          }, 15000);
+          const cleanup = () => {
+            clearTimeout(timeout);
+            form.remove();
+            frame.remove();
+          };
+          const complete = () => {
+            if (!requestSent || completed) return;
+            completed = true;
+            cleanup();
+            resolve();
+          };
+
+          frame.name = frameName;
+          frame.style.display = "none";
+          frame.addEventListener("load", () => {
+            // The first load is the empty iframe. Submit only after that load;
+            // the next load is Apps Script's response.
+            if (!requestSent) {
+              requestSent = true;
+              form.submit();
+              return;
+            }
+            complete();
+          });
+          form.method = "POST";
+          form.action = CLOUD_URL;
+          form.target = frameName;
+          form.style.display = "none";
+          payload.type = "hidden";
+          payload.name = "payload";
+          payload.value = JSON.stringify(data);
+          form.appendChild(payload);
+          document.body.append(frame, form);
+
+          // Wait for Apps Script's redirected response. Removing the frame
+          // after a fixed delay can cancel slower writes, including deletes.
+        });
+      }
+
+      function switchTab(t) {
+        if (t === "admin") {
+          const pin = prompt("Admin PIN:");
+          if (pin !== "Reading@1195") return;
+          loadExpenses();
+          fetchFromCloud();
+          renderExpenses();
+        }
+        document
+          .getElementById("regView")
+          .classList.toggle("hidden", t !== "reg");
+        document
+          .getElementById("adminView")
+          .classList.toggle("hidden", t !== "admin");
+        document
+          .getElementById("t-reg")
+          .classList.toggle("active", t === "reg");
+        document
+          .getElementById("t-admin")
+          .classList.toggle("active", t === "admin");
+      }
+
+      function getMonthIncomeTotal() {
+        return cloudData.reduce((sum, m) => {
+          return isRecordInSelectedMonthSheet(m)
+            ? sum + parseFloat(m.amount || 0)
+            : sum;
+        }, 0);
+      }
+
+      function isRecordInSelectedMonthSheet(record) {
+        const sheetName = String(record.cleanSheetName || "")
+          .trim()
+          .toLowerCase();
+        const fullMonthName = [
+          "January",
+          "February",
+          "March",
+          "April",
+          "May",
+          "June",
+          "July",
+          "August",
+          "September",
+          "October",
+          "November",
+          "December",
+        ][selectedMonth];
+        const shortMonthName = [
+          "Jan",
+          "Feb",
+          "Mar",
+          "Apr",
+          "May",
+          "Jun",
+          "Jul",
+          "Aug",
+          "Sep",
+          "Oct",
+          "Nov",
+          "Dec",
+        ][selectedMonth];
+        // Existing tabs use short names (for example, "Jul 2026"). Support
+        // them as well as full-name tabs, without accepting another month.
+        return [
+          fullMonthName,
+          `${fullMonthName} ${selectedYear}`,
+          shortMonthName,
+          `${shortMonthName} ${selectedYear}`,
+        ].some((name) => sheetName === name.toLowerCase());
+      }
+
+      function renderAdmin() {
+        const listBody = document.getElementById("memberListBody");
+        const query = document.getElementById("search").value.toLowerCase();
+
+        const monthNames = [
+          "Jan",
+          "Feb",
+          "Mar",
+          "Apr",
+          "May",
+          "Jun",
+          "Jul",
+          "Aug",
+          "Sep",
+          "Oct",
+          "Nov",
+          "Dec",
+        ];
+        const targetMonthName = monthNames[selectedMonth];
+        document.getElementById("monthNameLabel").innerText =
+          `${targetMonthName} ${selectedYear}`;
+
+        let monthTotal = 0,
+          todayTotal = 0;
+        listBody.innerHTML = "";
+
+        const now = new Date();
+        now.setHours(0, 0, 0, 0);
+        const todayStr = now.toDateString();
+
+        const sortMode = document.getElementById("adminSort").value;
+        // The month buttons are driven strictly by the corresponding Google
+        // Sheet tab; no record from another month may be used as a fallback.
+        const monthRecords = cloudData.filter(isRecordInSelectedMonthSheet);
+
+        monthRecords.forEach((m) => {
+          const dObj = parseAnyDate(m.date);
+          monthTotal += parseFloat(m.amount || 0);
+
+          if (dObj && !isNaN(dObj) && dObj.toDateString() === todayStr)
+            todayTotal += parseFloat(m.amount || 0);
+        });
+
+        monthRecords
+          .filter((m) => {
+            return (
+              (m.name || "").toLowerCase().includes(query) ||
+              (m.memNo || "").toString().toLowerCase().includes(query) ||
+              getRecordSection(m).toLowerCase().includes(query) ||
+              getRecordSeat(m).toLowerCase().includes(query)
+            );
+          })
+          .sort((a, b) => {
+            if (sortMode === "date-asc")
+              return parseAnyDate(a.date) - parseAnyDate(b.date);
+            if (sortMode === "section") {
+              const sectionCompare = getRecordSection(a).localeCompare(
+                getRecordSection(b),
+              );
+              if (sectionCompare) return sectionCompare;
+              return (
+                Number(getRecordSeat(a) || 9999) -
+                Number(getRecordSeat(b) || 9999)
+              );
+            }
+            if (sortMode === "seat")
+              return (
+                Number(getRecordSeat(a) || 9999) -
+                Number(getRecordSeat(b) || 9999)
+              );
+            return parseAnyDate(b.date) - parseAnyDate(a.date);
+          })
+          .forEach((m) => {
+            listBody.innerHTML += `<tr>
+                        <td>${formatDateDisplay(m.date)}</td>
+                        <td><b>${m.name || ""}</b></td>
+                        <td>${getSectionLabel(getRecordSection(m))}</td>
+                        <td>${getRecordSeat(m)}</td>
+                        <td>${m.memNo || ""}</td>
+                        <td>${getPlanLabel(m.package)}</td>
+                        <td>${formatCurrency(getMembershipFee(m))}</td>
+                        <td>${formatCurrency(getSecurityAmount(m))}</td>
+                        <td>${formatCurrency(m.amount)}</td>
+                        <td><a href="https://wa.me/91${m.contact || ""}" target="_blank" style="color:var(--whatsapp); text-decoration:none; font-weight:bold;">${m.contact || ""}</a></td>
+                        <td>${m.aadharNo || "N/A"}</td>
+                        <td>${formatDateDisplay(m.expiry)}</td>
+                        <td>
+                          <button class="btn-action" style="background:var(--pdf)" onclick="downloadMembershipBill('${m.rowId}', '${m.sheetName}')">Bill PDF</button>
+                          <button class="btn-action" style="background:var(--info)" onclick="triggerEdit('${m.rowId}', '${m.sheetName}')">Edit</button>
+                          <button class="btn-action danger-btn" onclick="deleteMembership('${m.rowId}', '${m.sheetName}', '${String(m.name || "").replace(/'/g, "\\'")}')">Delete</button>
+                        </td>
+                    </tr>`;
+          });
+
+        if (!listBody.innerHTML)
+          listBody.innerHTML =
+            '<tr><td colspan="13" style="text-align:center; color:#64748b;">No member records for this month.</td></tr>';
+
+        document.getElementById("monthCol").innerText =
+          formatCurrency(monthTotal);
+        document.getElementById("todayCol").innerText =
+          formatCurrency(todayTotal);
+        renderExpenses(monthTotal);
+      }
+
+      function renderExpenses(monthIncomeTotal = null) {
+        const listBody = document.getElementById("expenseListBody");
+        const query = document
+          .getElementById("expenseSearch")
+          .value.toLowerCase();
+        const monthNames = [
+          "Jan",
+          "Feb",
+          "Mar",
+          "Apr",
+          "May",
+          "Jun",
+          "Jul",
+          "Aug",
+          "Sep",
+          "Oct",
+          "Nov",
+          "Dec",
+        ];
+        const targetMonthName = monthNames[selectedMonth];
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        let monthExpense = 0,
+          todayExpense = 0;
+
+        document.getElementById("expenseMonthNameLabel").innerText =
+          targetMonthName;
+        listBody.innerHTML = "";
+
+        const sortedExpenses = [...expenseData].sort(
+          (a, b) => parseAnyDate(b.date) - parseAnyDate(a.date),
+        );
+        sortedExpenses.forEach((expense) => {
+          const dObj = parseAnyDate(expense.date);
+          if (!dObj) return;
+
+          const matchesMonth =
+            dObj.getMonth() === selectedMonth &&
+            dObj.getFullYear() === selectedYear;
+          if (matchesMonth) monthExpense += parseFloat(expense.amount || 0);
+          if (dObj.toDateString() === today.toDateString())
+            todayExpense += parseFloat(expense.amount || 0);
+
+          const searchMatch =
+            !query ||
+            (expense.title || "").toLowerCase().includes(query) ||
+            (expense.category || "").toLowerCase().includes(query);
+          if (matchesMonth && searchMatch) {
+            const billLink = expense.billDataUrl
+              ? `<a class="link-btn" href="${expense.billDataUrl}" download="${expense.billName || "bill"}" target="_blank">Open Bill</a>`
+              : '<span style="color:#94a3b8;">No Bill</span>';
+            listBody.innerHTML += `<tr>
+                    <td>${formatDateDisplay(expense.date)}</td>
+                    <td><b>${expense.title}</b></td>
+                    <td>${expense.category || "Books"}</td>
+                    <td>${expense.payMode}</td>
+                    <td>${formatCurrency(expense.amount)}</td>
+                    <td>${billLink}</td>
+                    <td><button class="btn-action danger-btn" onclick="deleteExpense('${expense.id}')">Delete</button></td>
+                </tr>`;
+          }
+        });
+
+        const incomeValue =
+          monthIncomeTotal !== null ? monthIncomeTotal : getMonthIncomeTotal();
+        document.getElementById("expenseMonthTotal").innerText =
+          formatCurrency(monthExpense);
+        document.getElementById("expenseTodayTotal").innerText =
+          formatCurrency(todayExpense);
+        document.getElementById("netCollectionTotal").innerText =
+          formatCurrency(incomeValue - monthExpense);
+
+        if (!listBody.innerHTML)
+          listBody.innerHTML =
+            '<tr><td colspan="7" style="text-align:center; color:#64748b;">No expense records for this month.</td></tr>';
+      }
+
+      async function saveToCloud() {
+        updateMemberId();
+        updateTotalAmount();
+        const data = {
+          action: editContext ? "EDIT" : "SAVE",
+          rowId: editContext ? editContext.rowId : null,
+          sheetName: editContext ? editContext.sheetName : null,
+          date: document.getElementById("date").value,
+          name: document.getElementById("name").value,
+          memNo: document.getElementById("memNo").value,
+          section: document.getElementById("section").value,
+          package: document.getElementById("package").value,
+          payMode: document.getElementById("payMode").value,
+          membershipFee: document.getElementById("membershipFee").value,
+          securityAmount: document.getElementById("securityAmount").value,
+          isRenewal: isRenewalMode,
+          amount: document.getElementById("amt").value,
+          contact: document.getElementById("contact").value,
+          aadharNo: document.getElementById("aadharNo").value.trim(),
+          seatNo: document.getElementById("seatNo").value,
+          expiry: updateExpiryPreview(),
+        };
+        const status = document.getElementById("status");
+        const saveBtn = document.getElementById("saveBtn");
+        if (
+          !data.date ||
+          !data.memNo ||
+          !data.section ||
+          !data.seatNo ||
+          !data.name ||
+          !data.contact ||
+          !data.package ||
+          !data.payMode ||
+          !data.membershipFee ||
+          data.securityAmount === "" ||
+          !data.amount ||
+          !data.expiry
+        ) {
+          status.style.color = "var(--danger)";
+          status.innerText = "Please fill all required membership fields.";
+          return;
+        }
+
+        status.style.color = "var(--primary)";
+        status.innerText = "Syncing...";
+        saveBtn.disabled = true;
+
+        try {
+          await submitCloudPayload(data);
+          await fetchFromCloud();
+          const recordWasSaved = cloudData.some(
+            (record) =>
+              String(record.memNo || "").trim() === data.memNo.trim() &&
+              String(record.name || "").trim() === data.name.trim() &&
+              String(record.date || "").slice(0, 10) === data.date &&
+              String(record.amount || "") === String(data.amount),
+          );
+          if (!recordWasSaved) {
+            throw new Error(
+              "Record was not received by Google Sheets. Paste the updated Apps Script code and redeploy the Web App, then try again.",
+            );
+          }
+          resetForm();
+          status.style.color = "var(--success)";
+          status.innerText = "Record processed and saved to Google Sheet.";
+        } catch (e) {
+          console.error("Save Error", e);
+          status.style.color = "var(--danger)";
+          status.innerText =
+            e.message || "Save completed with verification check timeout.";
+        } finally {
+          saveBtn.disabled = false;
+          checkDuplicateID();
+        }
+      }
+
+      async function deleteMembership(rowId, sheetName, memberName) {
+        const displayName = memberName || "this member";
+        if (
+          !confirm(
+            `Delete ${displayName}'s membership record? This cannot be undone.`,
+          )
+        ) {
+          return;
+        }
+
+        const status = document.getElementById("status");
+        status.style.color = "var(--primary)";
+        status.innerText = "Deleting record...";
+
+        try {
+          await submitCloudPayload({
+            action: "DELETE",
+            rowId,
+            sheetName,
+          });
+          await fetchFromCloud();
+          const recordStillExists = cloudData.some(
+            (record) =>
+              String(record.rowId) === String(rowId) &&
+              record.sheetName === sheetName,
+          );
+          if (recordStillExists) {
+            throw new Error(
+              "Record was not deleted. Update and redeploy the Apps Script Web App, then try again.",
+            );
+          }
+          status.style.color = "var(--success)";
+          status.innerText = "Membership record deleted.";
+        } catch (e) {
+          console.error("Delete Error", e);
+          status.style.color = "var(--danger)";
+          status.innerText =
+            e.message || "Unable to delete the membership record.";
+        }
+      }
+
+      async function saveExpense() {
+        const expenseDate = document.getElementById("expenseDate").value;
+        const expenseTitle = document
+          .getElementById("expenseTitle")
+          .value.trim();
+        const expenseAmount = document.getElementById("expenseAmount").value;
+        const expensePayMode = document.getElementById("expensePayMode").value;
+        const expenseCategory =
+          document.getElementById("expenseCategory").value;
+        const billFile = document.getElementById("expenseBill").files[0];
+        const status = document.getElementById("expenseStatus");
+
+        if (
+          !expenseDate ||
+          !expenseTitle ||
+          !expenseAmount ||
+          !expensePayMode
+        ) {
+          status.style.color = "var(--danger)";
+          status.innerText =
+            "Please fill expense date, head, amount, and payment mode.";
+          return;
+        }
+
+        status.style.color = "var(--primary)";
+        status.innerText = "Saving expense...";
+
+        try {
+          const bill = await readBillFile(billFile);
+          expenseData.push({
+            id: `exp-${Date.now()}`,
+            date: expenseDate,
+            title: expenseTitle,
+            amount: expenseAmount,
+            payMode: expensePayMode,
+            category: expenseCategory,
+            billName: bill ? bill.name : "",
+            billDataUrl: bill ? bill.dataUrl : "",
+            billType: bill ? bill.type : "",
+          });
+          saveExpensesToStorage();
+          resetExpenseForm();
+          status.style.color = "var(--success)";
+          status.innerText = "Expense saved successfully.";
+          renderExpenses();
+        } catch (e) {
+          status.style.color = "var(--danger)";
+          status.innerText = "Bill upload failed. Please try a smaller file.";
+        }
+      }
+
+      function deleteExpense(id) {
+        if (!confirm("Delete this expense record?")) return;
+        expenseData = expenseData.filter((item) => item.id !== id);
+        saveExpensesToStorage();
+        renderExpenses();
+      }
+
+      function triggerEdit(rowId, sheetName) {
+        const m = cloudData.find(
+          (item) => item.rowId == rowId && item.sheetName == sheetName,
+        );
+        if (!m) return;
+        editContext = { rowId, sheetName };
+        isRenewalMode = false;
+        document.getElementById("name").value = m.name;
+        document.getElementById("contact").value = m.contact;
+        document.getElementById("aadharNo").value = m.aadharNo || "";
+        document.getElementById("memNo").value = m.memNo || "";
+        document.getElementById("section").value = getRecordSection(m);
+        buildSeatOptions(getRecordSeat(m));
+        buildPlanOptions(m.package);
+        updateMemberId();
+        document.getElementById("package").value = m.package;
+        document.getElementById("payMode").value = m.payMode || "";
+        document.getElementById("membershipFee").value =
+          getMembershipFee(m) || "";
+        document.getElementById("securityAmount").value = String(
+          getSecurityAmount(m),
+        );
+        document.getElementById("amt").value = m.amount;
+        document.getElementById("date").value = new Date(m.date)
+          .toISOString()
+          .split("T")[0];
+        switchTab("reg");
+      }
+
+      function renewFromAdmin(id) {
+        const m = getLatestMemberships().find((item) => item.memNo == id);
+        if (!m) return;
+        editContext = null;
+        isRenewalMode = true;
+        document.getElementById("name").value = m.name;
+        document.getElementById("contact").value = m.contact;
+        document.getElementById("aadharNo").value = m.aadharNo || "";
+        document.getElementById("memNo").value = m.memNo || "";
+        document.getElementById("section").value = getRecordSection(m);
+        buildSeatOptions(getRecordSeat(m));
+        buildPlanOptions(m.package);
+        updateMemberId();
+        document.getElementById("package").value = m.package;
+        document.getElementById("payMode").value = "";
+        document.getElementById("securityAmount").value = "0";
+        updatePlanAmount();
+        document.getElementById("date").valueAsDate = new Date();
+        updateExpiryPreview();
+        switchTab("reg");
+      }
+
+      function updateExpiryPreview() {
+        const pkg = document.getElementById("package").value;
+        const joinDate = document.getElementById("date").value;
+        if (!pkg || !joinDate) return "";
+        let d = new Date(joinDate);
+        let months = parseInt((pkg.match(/\d+/) || [1])[0], 10);
+        d.setMonth(d.getMonth() + months);
+        const exp = d.toISOString().split("T")[0];
+        document.getElementById("expiryPreview").innerText =
+          "EXPIRY: " + formatDateDisplay(exp);
+        return exp;
+      }
+
+      function getPlanLabel(value) {
+        if (!value) return "";
+        const months = parseInt((String(value).match(/\d+/) || [value])[0], 10);
+        if (!months) return value;
+        return `${months} Month${months === 1 ? "" : "s"}`;
+      }
+
+      function getMembershipFee(member) {
+        const sectionPlans = PLAN_AMOUNTS[getRecordSection(member)] || {};
+        return Number(
+          member.membershipFee || sectionPlans[member.package] || 0,
+        );
+      }
+
+      function getSecurityAmount(member) {
+        if (
+          member.securityAmount !== undefined &&
+          member.securityAmount !== ""
+        ) {
+          return Number(member.securityAmount || 0);
+        }
+        return Math.max(
+          0,
+          Number(member.amount || 0) - getMembershipFee(member),
+        );
+      }
+
+      function updatePlanAmount() {
+        const pkg = document.getElementById("package").value;
+        const section = document.getElementById("section").value;
+        const amount = (PLAN_AMOUNTS[section] || {})[pkg];
+        document.getElementById("membershipFee").value = amount || "";
+        document.getElementById("securityAmount").value = isRenewalMode
+          ? "0"
+          : String(SECURITY_AMOUNT);
+        updateTotalAmount();
+      }
+
+      function resetForm() {
+        editContext = null;
+        isRenewalMode = false;
+        [
+          "name",
+          "memNo",
+          "amt",
+          "contact",
+          "seatNo",
+          "section",
+          "membershipFee",
+          "package",
+          "payMode",
+          "aadharNo",
+        ].forEach((id) => (document.getElementById(id).value = ""));
+        document.getElementById("securityAmount").value = "500";
+        buildSeatOptions();
+        buildPlanOptions();
+        document.getElementById("date").valueAsDate = new Date();
+        document.getElementById("expiryPreview").innerText = "";
+        checkDuplicateID();
+      }
+
+      function resetExpenseForm() {
+        document.getElementById("expenseDate").valueAsDate = new Date();
+        document.getElementById("expenseTitle").value = "";
+        document.getElementById("expenseAmount").value = "";
+        document.getElementById("expensePayMode").value = "";
+        document.getElementById("expenseCategory").value = "Books";
+        document.getElementById("expenseBill").value = "";
+      }
+
+      function downloadMembershipBill(rowId, sheetName) {
+        const member = cloudData.find(
+          (item) => item.rowId == rowId && item.sheetName == sheetName,
+        );
+        if (!member) {
+          alert("Member record not found.");
+          return;
+        }
+
+        const { jsPDF } = window.jspdf;
+        const doc = new jsPDF();
+        const billDate = formatDateDisplay(member.date);
+        const expiryDate = formatDateDisplay(member.expiry);
+        const packageLabel = getPlanLabel(member.package);
+        const amountLabel = formatCurrency(member.amount);
+
+        doc.setFillColor(250, 247, 242);
+        doc.roundedRect(12, 12, 186, 270, 6, 6, "F");
+        doc.addImage(BILL_LOGO_DATA_URL, "JPEG", 18, 18, 30, 30);
+
+        doc.setFont("helvetica", "bold");
+        doc.setTextColor(59, 42, 31);
+        doc.setFontSize(20);
+        doc.text(LIBRARY_NAME, 54, 28);
+
+        doc.setFont("helvetica", "normal");
+        doc.setFontSize(10);
+        doc.setTextColor(71, 85, 105);
+        const addressLines = doc.splitTextToSize(LIBRARY_ADDRESS, 130);
+        doc.text(addressLines, 54, 35);
+
+        doc.setDrawColor(203, 213, 225);
+        doc.line(18, 54, 192, 54);
+
+        doc.setFont("helvetica", "bold");
+        doc.setFontSize(18);
+        doc.setTextColor(17, 24, 39);
+        doc.text("Membership Bill", 18, 66);
+
+        doc.setFontSize(10);
+        doc.setTextColor(100, 116, 139);
+        doc.text(`Bill Date: ${billDate}`, 18, 74);
+
+        doc.autoTable({
+          startY: 82,
+          theme: "grid",
+          head: [["Field", "Details"]],
+          body: [
+            ["Member Name", member.name || ""],
+            ["Contact Number", member.contact || "N/A"],
+            ["Reading Room Seat No.", member.seatNo || "N/A"],
+            ["Membership Plan", packageLabel],
+            ["Payment Mode", member.payMode || "N/A"],
+            ["Joining / Renewal Date", billDate],
+            ["Membership Expiry", expiryDate],
+            ["Amount Paid", amountLabel],
+          ],
+          headStyles: { fillColor: [59, 42, 31] },
+          styles: { fontSize: 11, cellPadding: 4 },
+          columnStyles: {
+            0: { fontStyle: "bold", cellWidth: 62 },
+            1: { cellWidth: 108 },
+          },
+        });
+
+        const finalY = doc.lastAutoTable.finalY || 150;
+        doc.setFont("helvetica", "normal");
+        doc.setFontSize(10);
+        doc.setTextColor(71, 85, 105);
+        doc.text(
+          "Thank you for choosing Reading Cafe Library.",
+          18,
+          finalY + 18,
+        );
+        doc.setFont("helvetica", "normal");
+        doc.setFontSize(10);
+        doc.setTextColor(71, 85, 105);
+        doc.text(
+          "Membership fees, once paid, are non-refundable under any circumstances.",
+          18,
+          finalY + 28,
+        );
+        doc.text(
+          "Fees will not be adjusted or compensated for missed reading room usage.",
+          18,
+          finalY + 36,
+        );
+        doc.text(
+          "Seat allocation and library access remain subject to management rules.",
+          18,
+          finalY + 44,
+        );
+
+        const safeName = (member.name || "member").replace(/[^\w\-]+/g, "_");
+        doc.save(
+          `Reading_Cafe_Library_Bill_${safeName}_${member.seatNo || "Seat"}.pdf`,
+        );
+      }
+
+      function downloadRenewalPDF() {
+        const { jsPDF } = window.jspdf;
+        const doc = new jsPDF();
+        const monthNames = [
+          "Jan",
+          "Feb",
+          "Mar",
+          "Apr",
+          "May",
+          "Jun",
+          "Jul",
+          "Aug",
+          "Sep",
+          "Oct",
+          "Nov",
+          "Dec",
+        ];
+        const currentMonthName = monthNames[selectedMonth];
+
+        doc.setFontSize(18);
+        doc.text("Reading Cafe Library", 105, 15, { align: "center" });
+        doc.setFontSize(12);
+        doc.text(
+          `Renewal List for ${currentMonthName} ${selectedYear}`,
+          105,
+          22,
+          { align: "center" },
+        );
+
+        const renewalData = [];
+        const latest = {};
+        cloudData.forEach((m) => {
+          const exp = parseAnyDate(m.expiry);
+          if (!latest[m.memNo] || exp > parseAnyDate(latest[m.memNo].expiry))
+            latest[m.memNo] = m;
+        });
+
+        Object.values(latest).forEach((m) => {
+          const eObj = parseAnyDate(m.expiry);
+          if (
+            eObj &&
+            eObj.getMonth() === selectedMonth &&
+            eObj.getFullYear() === selectedYear
+          ) {
+            renewalData.push([
+              m.memNo,
+              m.name,
+              m.contact || "N/A",
+              formatDateDisplay(m.expiry),
+            ]);
+          }
+        });
+
+        renewalData.sort(
+          (a, b) =>
+            new Date(a[3].split("/").reverse().join("-")) -
+            new Date(b[3].split("/").reverse().join("-")),
+        );
+        if (renewalData.length === 0) {
+          alert("No memberships expiring in the selected month.");
+          return;
+        }
+
+        doc.autoTable({
+          head: [["Member ID", "Name", "Contact", "Expiry Date"]],
+          body: renewalData,
+          startY: 30,
+          theme: "grid",
+          headStyles: { fillColor: [59, 42, 31] },
+          styles: { fontSize: 10 },
+        });
+
+        doc.save(
+          `Reading_Cafe_Renewals_${currentMonthName}_${selectedYear}.pdf`,
+        );
+      }
+
+      window.onload = () => {
+        buildMonthNav();
+        loadExpenses();
+        fetchFromCloud();
+        renderExpenses();
       };
-      load().catch(() => {
-        $("#view").innerHTML =
-          '<div class="panel empty">Paste your Firebase Web App configuration, including databaseURL, then publish the Realtime Database rules.</div>';
-      });
     </script>
   </body>
 </html>
