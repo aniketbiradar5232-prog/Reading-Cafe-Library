@@ -1462,6 +1462,7 @@
                         <td>
                           <button class="btn-action" style="background:var(--pdf)" onclick="downloadMembershipBill('${m.rowId}', '${m.sheetName}')">Bill PDF</button>
                           <button class="btn-action" style="background:var(--info)" onclick="triggerEdit('${m.rowId}', '${m.sheetName}')">Edit</button>
+                          <button class="btn-action danger-btn" onclick="deleteMembership('${m.rowId}', '${m.sheetName}', '${String(m.name || "").replace(/'/g, "\\'")}')">Delete</button>
                         </td>
                     </tr>`;
           });
@@ -1627,6 +1628,40 @@
         } finally {
           saveBtn.disabled = false;
           checkDuplicateID();
+        }
+      }
+
+      async function deleteMembership(rowId, sheetName, memberName) {
+        const displayName = memberName || "this member";
+        if (!confirm(`Delete ${displayName}'s membership record? This cannot be undone.`)) {
+          return;
+        }
+
+        const status = document.getElementById("status");
+        status.style.color = "var(--primary)";
+        status.innerText = "Deleting record...";
+
+        try {
+          await submitCloudPayload({
+            action: "DELETE",
+            rowId,
+            sheetName,
+          });
+          await fetchFromCloud();
+          const recordStillExists = cloudData.some(
+            (record) => String(record.rowId) === String(rowId) && record.sheetName === sheetName,
+          );
+          if (recordStillExists) {
+            throw new Error(
+              "Record was not deleted. Update and redeploy the Apps Script Web App, then try again.",
+            );
+          }
+          status.style.color = "var(--success)";
+          status.innerText = "Membership record deleted.";
+        } catch (e) {
+          console.error("Delete Error", e);
+          status.style.color = "var(--danger)";
+          status.innerText = e.message || "Unable to delete the membership record.";
         }
       }
 
