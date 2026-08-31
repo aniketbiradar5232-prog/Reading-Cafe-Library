@@ -333,6 +333,16 @@
         line-height: 1;
       }
 
+      .renewal-nav-btn {
+        width: auto;
+        margin: 0;
+        padding: 10px 12px;
+        background: var(--primary);
+        color: #fff;
+        border-radius: 10px;
+        font-weight: 700;
+      }
+
       @media (max-width: 768px) {
         .form-grid {
           grid-template-columns: 1fr;
@@ -376,6 +386,7 @@
               id="section"
               onchange="
                 buildSeatOptions();
+                buildPlanOptions();
                 updateMemberId();
                 checkDuplicateID();
               "
@@ -384,7 +395,7 @@
               <option value="">-- Choose Section --</option>
               <option value="A">Section A - Fixed Seats 1 to 27</option>
               <option value="B">Section B - Fixed Seats 1 to 31</option>
-              <option value="C">Section C - Floating / Random Seats</option>
+              <option value="C">Floating - Random Seats</option>
             </select>
           </div>
         </div>
@@ -410,7 +421,9 @@
             >
               <option value="">-- Select Section First --</option>
             </select>
-            <div id="id-warning">Seats may be shared by more than one member.</div>
+            <div id="id-warning">
+              Seats may be shared by more than one member.
+            </div>
           </div>
           <div>
             <label style="font-size: 11px; font-weight: bold"
@@ -433,11 +446,7 @@
             "
             required
           >
-            <option value="">-- Choose Membership Plan --</option>
-            <option value="1" data-amount="2499">1 Month</option>
-            <option value="3" data-amount="6999">3 Months</option>
-            <option value="6" data-amount="13999">6 Months</option>
-            <option value="12" data-amount="26999">12 Months</option>
+            <option value="">-- Choose Section First --</option>
           </select>
           <select id="payMode" required>
             <option value="">-- Payment Mode --</option>
@@ -460,23 +469,19 @@
           </div>
           <div>
             <label style="font-size: 11px; font-weight: bold"
-              >Security Deposit (Rs. 500)? *</label
+              >Aadhaar Card Number</label
             >
-            <select id="securityAmount" onchange="updateTotalAmount()" required>
-              <option value="500">Yes</option>
-              <option value="0">No</option>
-            </select>
+            <input
+              type="text"
+              id="aadharNo"
+              placeholder="Aadhaar Card Number"
+              inputmode="numeric"
+              maxlength="12"
+            />
           </div>
         </div>
-        <input
-          type="number"
-          id="amt"
-          class="readonly-field"
-          placeholder="Total Payable (Rs.)"
-          required
-          readonly
-        />
-        <input type="text" id="aadharNo" placeholder="Aadhaar Card Number" inputmode="numeric" maxlength="12" />
+        <input type="hidden" id="securityAmount" value="500" />
+        <input type="hidden" id="amt" />
         <div
           id="expiryPreview"
           style="
@@ -521,6 +526,14 @@
           >
             <h3 style="color: var(--primary); margin: 0">Renewal Due</h3>
             <div class="renewal-toolbar">
+              <button
+                type="button"
+                class="renewal-nav-btn"
+                onclick="changeReminderDate(-1)"
+                aria-label="Show previous renewal date"
+              >
+                ← Previous
+              </button>
               <input
                 type="date"
                 id="reminderDatePicker"
@@ -538,6 +551,14 @@
                   📅
                 </button>
               </div>
+              <button
+                type="button"
+                class="renewal-nav-btn"
+                onclick="changeReminderDate(1)"
+                aria-label="Show next renewal date"
+              >
+                Next →
+              </button>
             </div>
           </div>
           <div class="scroll-table">
@@ -802,10 +823,9 @@
       const LIBRARY_ADDRESS =
         "Building No. 2950, 1st Floor, Gali No-12, Near Shiv Mandir Chowk, South Patel Nagar, New Delhi 110008.";
       const PLAN_AMOUNTS = {
-        1: 2499,
-        3: 6999,
-        6: 13999,
-        12: 26999,
+        A: { 1: 2000, 2: 3800, 3: 5500 },
+        B: { 1: 2200, 2: 4200, 3: 6100 },
+        C: { 1: 1500, 2: 2500, 3: 3500 },
       };
       const SECURITY_AMOUNT = 500;
       const SECTION_SEATS = {
@@ -861,12 +881,18 @@
 
       function getSectionLabel(value) {
         if (!value) return "";
+        if (value === "C") return "Floating";
         return `Section ${value}`;
       }
 
       function getRecordSection(member) {
         if (member.section) return String(member.section);
-        if (String(member.seatNo || "").toLowerCase().includes("floating")) return "C";
+        if (
+          String(member.seatNo || "")
+            .toLowerCase()
+            .includes("floating")
+        )
+          return "C";
         const idParts = String(member.memNo || "").split("-");
         return idParts[0] || "";
       }
@@ -909,6 +935,25 @@
         updateMemberId();
       }
 
+      function buildPlanOptions(selectedPackage = "") {
+        const section = document.getElementById("section").value;
+        const packageSelect = document.getElementById("package");
+        const plans = PLAN_AMOUNTS[section];
+        packageSelect.innerHTML = plans
+          ? '<option value="">-- Choose Membership Plan --</option>'
+          : '<option value="">-- Choose Section First --</option>';
+
+        if (!plans) return;
+        Object.entries(plans).forEach(([months, amount]) => {
+          const option = document.createElement("option");
+          option.value = months;
+          option.textContent = `${months} Month${months === "1" ? "" : "s"} - Rs. ${amount.toLocaleString("en-IN")}`;
+          option.dataset.amount = amount;
+          option.selected = String(selectedPackage) === months;
+          packageSelect.appendChild(option);
+        });
+      }
+
       function updateMemberId() {
         // Membership numbers are entered manually for every section. Seats can
         // be shared, so a selected seat must never replace this value.
@@ -917,9 +962,13 @@
 
       function updateTotalAmount() {
         const fee = Number(document.getElementById("membershipFee").value || 0);
-        const security = Number(
-          document.getElementById("securityAmount").value || 0,
-        );
+        const security = isRenewalMode
+          ? 0
+          : Number(
+              document.getElementById("securityAmount").value ||
+                SECURITY_AMOUNT,
+            );
+        document.getElementById("securityAmount").value = security;
         document.getElementById("amt").value =
           fee || security ? fee + security : "";
       }
@@ -964,6 +1013,12 @@
         const pickerValue = document.getElementById("reminderDatePicker").value;
         if (!pickerValue) return;
         reminderViewDate = new Date(pickerValue);
+        reminderViewDate.setHours(0, 0, 0, 0);
+        renderUpcomingRenewals();
+      }
+
+      function changeReminderDate(offset) {
+        reminderViewDate.setDate(reminderViewDate.getDate() + offset);
         reminderViewDate.setHours(0, 0, 0, 0);
         renderUpcomingRenewals();
       }
@@ -1212,7 +1267,11 @@
           const payload = document.createElement("input");
           const timeout = setTimeout(() => {
             cleanup();
-            reject(new Error("Save request timed out. Check the Apps Script deployment."));
+            reject(
+              new Error(
+                "Save request timed out. Check the Apps Script deployment.",
+              ),
+            );
           }, 15000);
           const cleanup = () => {
             clearTimeout(timeout);
@@ -1277,12 +1336,32 @@
           .trim()
           .toLowerCase();
         const fullMonthName = [
-          "January", "February", "March", "April", "May", "June",
-          "July", "August", "September", "October", "November", "December",
+          "January",
+          "February",
+          "March",
+          "April",
+          "May",
+          "June",
+          "July",
+          "August",
+          "September",
+          "October",
+          "November",
+          "December",
         ][selectedMonth];
         const shortMonthName = [
-          "Jan", "Feb", "Mar", "Apr", "May", "Jun",
-          "Jul", "Aug", "Sep", "Oct", "Nov", "Dec",
+          "Jan",
+          "Feb",
+          "Mar",
+          "Apr",
+          "May",
+          "Jun",
+          "Jul",
+          "Aug",
+          "Sep",
+          "Oct",
+          "Nov",
+          "Dec",
         ][selectedMonth];
         // Existing tabs use short names (for example, "Jul 2026"). Support
         // them as well as full-name tabs, without accepting another month.
@@ -1490,6 +1569,7 @@
           payMode: document.getElementById("payMode").value,
           membershipFee: document.getElementById("membershipFee").value,
           securityAmount: document.getElementById("securityAmount").value,
+          isRenewal: isRenewalMode,
           amount: document.getElementById("amt").value,
           contact: document.getElementById("contact").value,
           aadharNo: document.getElementById("aadharNo").value.trim(),
@@ -1524,11 +1604,12 @@
         try {
           await submitCloudPayload(data);
           await fetchFromCloud();
-          const recordWasSaved = cloudData.some((record) =>
-            String(record.memNo || "").trim() === data.memNo.trim() &&
-            String(record.name || "").trim() === data.name.trim() &&
-            String(record.date || "").slice(0, 10) === data.date &&
-            String(record.amount || "") === String(data.amount),
+          const recordWasSaved = cloudData.some(
+            (record) =>
+              String(record.memNo || "").trim() === data.memNo.trim() &&
+              String(record.name || "").trim() === data.name.trim() &&
+              String(record.date || "").slice(0, 10) === data.date &&
+              String(record.amount || "") === String(data.amount),
           );
           if (!recordWasSaved) {
             throw new Error(
@@ -1620,13 +1701,15 @@
         document.getElementById("memNo").value = m.memNo || "";
         document.getElementById("section").value = getRecordSection(m);
         buildSeatOptions(getRecordSeat(m));
+        buildPlanOptions(m.package);
         updateMemberId();
         document.getElementById("package").value = m.package;
         document.getElementById("payMode").value = m.payMode || "";
         document.getElementById("membershipFee").value =
           getMembershipFee(m) || "";
-        document.getElementById("securityAmount").value =
-          String(getSecurityAmount(m));
+        document.getElementById("securityAmount").value = String(
+          getSecurityAmount(m),
+        );
         document.getElementById("amt").value = m.amount;
         document.getElementById("date").value = new Date(m.date)
           .toISOString()
@@ -1645,9 +1728,11 @@
         document.getElementById("memNo").value = m.memNo || "";
         document.getElementById("section").value = getRecordSection(m);
         buildSeatOptions(getRecordSeat(m));
+        buildPlanOptions(m.package);
         updateMemberId();
         document.getElementById("package").value = m.package;
         document.getElementById("payMode").value = "";
+        document.getElementById("securityAmount").value = "0";
         updatePlanAmount();
         document.getElementById("date").valueAsDate = new Date();
         updateExpiryPreview();
@@ -1675,21 +1760,33 @@
       }
 
       function getMembershipFee(member) {
-        return Number(member.membershipFee || PLAN_AMOUNTS[member.package] || 0);
+        const sectionPlans = PLAN_AMOUNTS[getRecordSection(member)] || {};
+        return Number(
+          member.membershipFee || sectionPlans[member.package] || 0,
+        );
       }
 
       function getSecurityAmount(member) {
-        if (member.securityAmount !== undefined && member.securityAmount !== "") {
+        if (
+          member.securityAmount !== undefined &&
+          member.securityAmount !== ""
+        ) {
           return Number(member.securityAmount || 0);
         }
-        return Math.max(0, Number(member.amount || 0) - getMembershipFee(member));
+        return Math.max(
+          0,
+          Number(member.amount || 0) - getMembershipFee(member),
+        );
       }
 
       function updatePlanAmount() {
         const pkg = document.getElementById("package").value;
-        const amount = PLAN_AMOUNTS[pkg];
+        const section = document.getElementById("section").value;
+        const amount = (PLAN_AMOUNTS[section] || {})[pkg];
         document.getElementById("membershipFee").value = amount || "";
-        document.getElementById("securityAmount").value = "500";
+        document.getElementById("securityAmount").value = isRenewalMode
+          ? "0"
+          : String(SECURITY_AMOUNT);
         updateTotalAmount();
       }
 
@@ -1710,6 +1807,7 @@
         ].forEach((id) => (document.getElementById(id).value = ""));
         document.getElementById("securityAmount").value = "500";
         buildSeatOptions();
+        buildPlanOptions();
         document.getElementById("date").valueAsDate = new Date();
         document.getElementById("expiryPreview").innerText = "";
         checkDuplicateID();
