@@ -1265,6 +1265,8 @@
           const frame = document.createElement("iframe");
           const form = document.createElement("form");
           const payload = document.createElement("input");
+          let requestSent = false;
+          let completed = false;
           const timeout = setTimeout(() => {
             cleanup();
             reject(
@@ -1278,9 +1280,25 @@
             form.remove();
             frame.remove();
           };
+          const complete = () => {
+            if (!requestSent || completed) return;
+            completed = true;
+            cleanup();
+            resolve();
+          };
 
           frame.name = frameName;
           frame.style.display = "none";
+          frame.addEventListener("load", () => {
+            // The first load is the empty iframe. Submit only after that load;
+            // the next load is Apps Script's response.
+            if (!requestSent) {
+              requestSent = true;
+              form.submit();
+              return;
+            }
+            complete();
+          });
           form.method = "POST";
           form.action = CLOUD_URL;
           form.target = frameName;
@@ -1291,13 +1309,8 @@
           form.appendChild(payload);
           document.body.append(frame, form);
 
-          // Apps Script redirects its response, so allow the form to finish
-          // before refreshing the data through the existing JSONP fallback.
-          setTimeout(() => {
-            cleanup();
-            resolve();
-          }, 1200);
-          form.submit();
+          // Wait for Apps Script's redirected response. Removing the frame
+          // after a fixed delay can cancel slower writes, including deletes.
         });
       }
 
@@ -1633,7 +1646,11 @@
 
       async function deleteMembership(rowId, sheetName, memberName) {
         const displayName = memberName || "this member";
-        if (!confirm(`Delete ${displayName}'s membership record? This cannot be undone.`)) {
+        if (
+          !confirm(
+            `Delete ${displayName}'s membership record? This cannot be undone.`,
+          )
+        ) {
           return;
         }
 
@@ -1649,7 +1666,9 @@
           });
           await fetchFromCloud();
           const recordStillExists = cloudData.some(
-            (record) => String(record.rowId) === String(rowId) && record.sheetName === sheetName,
+            (record) =>
+              String(record.rowId) === String(rowId) &&
+              record.sheetName === sheetName,
           );
           if (recordStillExists) {
             throw new Error(
@@ -1661,7 +1680,8 @@
         } catch (e) {
           console.error("Delete Error", e);
           status.style.color = "var(--danger)";
-          status.innerText = e.message || "Unable to delete the membership record.";
+          status.innerText =
+            e.message || "Unable to delete the membership record.";
         }
       }
 
