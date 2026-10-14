@@ -480,8 +480,20 @@
             />
           </div>
         </div>
+        <div class="form-grid">
+          <div>
+            <label style="font-size: 11px; font-weight: bold">Security Deposit (Rs. 500) *</label>
+            <select id="securityPaid" onchange="updateTotalAmount()" required>
+              <option value="yes">Yes - Security paid</option>
+              <option value="no">No - Security not paid</option>
+            </select>
+          </div>
+          <div>
+            <label style="font-size: 11px; font-weight: bold">Membership Amount (Rs.)</label>
+            <input type="number" id="amt" class="readonly-field" readonly />
+          </div>
+        </div>
         <input type="hidden" id="securityAmount" value="500" />
-        <input type="hidden" id="amt" />
         <div
           id="expiryPreview"
           style="
@@ -841,8 +853,9 @@
       let editContext = null;
       let isRenewalMode = false;
       let reminderViewDate = new Date();
-      let selectedMonth = new Date().getMonth();
-      let selectedYear = new Date().getFullYear();
+      const initialPeriod = getLibraryPeriod(new Date());
+      let selectedMonth = initialPeriod.month;
+      let selectedYear = initialPeriod.year;
 
       document.getElementById("date").valueAsDate = new Date();
       document.getElementById("expenseDate").valueAsDate = new Date();
@@ -857,6 +870,10 @@
       function parseAnyDate(dateStr) {
         if (!dateStr) return null;
         if (dateStr instanceof Date) return dateStr;
+        if (typeof dateStr === "string" && /^\d{4}-\d{2}-\d{2}$/.test(dateStr)) {
+          const [year, month, day] = dateStr.split("-").map(Number);
+          return new Date(year, month - 1, day);
+        }
         if (typeof dateStr === "string" && dateStr.includes("/")) {
           const parts = dateStr.split("/");
           if (parts.length !== 3) return null;
@@ -867,6 +884,24 @@
           return new Date(parts[2], Number(parts[1]) - 1, parts[0]);
         }
         return new Date(dateStr);
+      }
+
+      // Library periods run from the 17th through the 16th and are named for
+      // their starting month (17 Jul–16 Aug = July).
+      function getLibraryPeriod(value) {
+        const date = value instanceof Date ? new Date(value) : parseAnyDate(value);
+        if (!date || isNaN(date)) return null;
+        const periodStart = new Date(
+          date.getFullYear(),
+          date.getMonth() - (date.getDate() < 17 ? 1 : 0),
+          1,
+        );
+        return { month: periodStart.getMonth(), year: periodStart.getFullYear() };
+      }
+
+      function isDateInSelectedPeriod(value) {
+        const period = getLibraryPeriod(value);
+        return !!period && period.month === selectedMonth && period.year === selectedYear;
       }
 
       function formatDateDisplay(dateStr) {
@@ -962,15 +997,11 @@
 
       function updateTotalAmount() {
         const fee = Number(document.getElementById("membershipFee").value || 0);
-        const security = isRenewalMode
-          ? 0
-          : Number(
-              document.getElementById("securityAmount").value ||
-                SECURITY_AMOUNT,
-            );
+        const security = document.getElementById("securityPaid").value === "yes"
+          ? SECURITY_AMOUNT
+          : 0;
         document.getElementById("securityAmount").value = security;
-        document.getElementById("amt").value =
-          fee || security ? fee + security : "";
+        document.getElementById("amt").value = fee || "";
       }
 
       function getAadharLink(label, dataUrl, fileName) {
@@ -1100,7 +1131,7 @@
           months.forEach((m, i) => {
             const btn = document.createElement("div");
             btn.className = `month-pill ${i === selectedMonth ? "active" : ""}`;
-            btn.innerText = m;
+            btn.innerText = `${m} ${selectedYear}`;
             btn.onclick = () => {
               selectedMonth = i;
               buildMonthNav();
@@ -1339,51 +1370,15 @@
       function getMonthIncomeTotal() {
         return cloudData.reduce((sum, m) => {
           return isRecordInSelectedMonthSheet(m)
-            ? sum + parseFloat(m.amount || 0)
+            ? sum + getMembershipFee(m)
             : sum;
         }, 0);
       }
 
       function isRecordInSelectedMonthSheet(record) {
-        const sheetName = String(record.cleanSheetName || "")
-          .trim()
-          .toLowerCase();
-        const fullMonthName = [
-          "January",
-          "February",
-          "March",
-          "April",
-          "May",
-          "June",
-          "July",
-          "August",
-          "September",
-          "October",
-          "November",
-          "December",
-        ][selectedMonth];
-        const shortMonthName = [
-          "Jan",
-          "Feb",
-          "Mar",
-          "Apr",
-          "May",
-          "Jun",
-          "Jul",
-          "Aug",
-          "Sep",
-          "Oct",
-          "Nov",
-          "Dec",
-        ][selectedMonth];
-        // Existing tabs use short names (for example, "Jul 2026"). Support
-        // them as well as full-name tabs, without accepting another month.
-        return [
-          fullMonthName,
-          `${fullMonthName} ${selectedYear}`,
-          shortMonthName,
-          `${shortMonthName} ${selectedYear}`,
-        ].some((name) => sheetName === name.toLowerCase());
+        // Use transaction dates so older records in calendar-month tabs are
+        // included in the correct 17th–16th library period.
+        return isDateInSelectedPeriod(record.date);
       }
 
       function renderAdmin() {
@@ -1423,10 +1418,10 @@
 
         monthRecords.forEach((m) => {
           const dObj = parseAnyDate(m.date);
-          monthTotal += parseFloat(m.amount || 0);
+          monthTotal += getMembershipFee(m);
 
           if (dObj && !isNaN(dObj) && dObj.toDateString() === todayStr)
-            todayTotal += parseFloat(m.amount || 0);
+            todayTotal += getMembershipFee(m);
         });
 
         monthRecords
@@ -1468,7 +1463,7 @@
                         <td>${getPlanLabel(m.package)}</td>
                         <td>${formatCurrency(getMembershipFee(m))}</td>
                         <td>${formatCurrency(getSecurityAmount(m))}</td>
-                        <td>${formatCurrency(m.amount)}</td>
+                        <td>${formatCurrency(getMembershipFee(m))}</td>
                         <td><a href="https://wa.me/91${m.contact || ""}" target="_blank" style="color:var(--whatsapp); text-decoration:none; font-weight:bold;">${m.contact || ""}</a></td>
                         <td>${m.aadharNo || "N/A"}</td>
                         <td>${formatDateDisplay(m.expiry)}</td>
@@ -1527,9 +1522,7 @@
           const dObj = parseAnyDate(expense.date);
           if (!dObj) return;
 
-          const matchesMonth =
-            dObj.getMonth() === selectedMonth &&
-            dObj.getFullYear() === selectedYear;
+          const matchesMonth = isDateInSelectedPeriod(dObj);
           if (matchesMonth) monthExpense += parseFloat(expense.amount || 0);
           if (dObj.toDateString() === today.toDateString())
             todayExpense += parseFloat(expense.amount || 0);
@@ -1602,7 +1595,6 @@
           !data.package ||
           !data.payMode ||
           !data.membershipFee ||
-          data.securityAmount === "" ||
           !data.amount ||
           !data.expiry
         ) {
@@ -1765,7 +1757,9 @@
         document.getElementById("securityAmount").value = String(
           getSecurityAmount(m),
         );
-        document.getElementById("amt").value = m.amount;
+        document.getElementById("securityPaid").value =
+          getSecurityAmount(m) > 0 ? "yes" : "no";
+        document.getElementById("amt").value = getMembershipFee(m);
         document.getElementById("date").value = new Date(m.date)
           .toISOString()
           .split("T")[0];
@@ -1787,6 +1781,7 @@
         updateMemberId();
         document.getElementById("package").value = m.package;
         document.getElementById("payMode").value = "";
+        document.getElementById("securityPaid").value = "no";
         document.getElementById("securityAmount").value = "0";
         updatePlanAmount();
         document.getElementById("date").valueAsDate = new Date();
@@ -1798,10 +1793,15 @@
         const pkg = document.getElementById("package").value;
         const joinDate = document.getElementById("date").value;
         if (!pkg || !joinDate) return "";
-        let d = new Date(joinDate);
-        let months = parseInt((pkg.match(/\d+/) || [1])[0], 10);
-        d.setMonth(d.getMonth() + months);
-        const exp = d.toISOString().split("T")[0];
+        const start = new Date(`${joinDate}T00:00:00`);
+        const months = parseInt((pkg.match(/\d+/) || [1])[0], 10);
+        const targetMonth = new Date(start.getFullYear(), start.getMonth() + months, 1);
+        const targetDay = Math.min(
+          start.getDate(),
+          new Date(targetMonth.getFullYear(), targetMonth.getMonth() + 1, 0).getDate(),
+        );
+        const d = new Date(targetMonth.getFullYear(), targetMonth.getMonth(), targetDay - 1);
+        const exp = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
         document.getElementById("expiryPreview").innerText =
           "EXPIRY: " + formatDateDisplay(exp);
         return exp;
@@ -1839,9 +1839,11 @@
         const section = document.getElementById("section").value;
         const amount = (PLAN_AMOUNTS[section] || {})[pkg];
         document.getElementById("membershipFee").value = amount || "";
-        document.getElementById("securityAmount").value = isRenewalMode
-          ? "0"
-          : String(SECURITY_AMOUNT);
+        if (document.getElementById("securityPaid").value !== "yes") {
+          document.getElementById("securityPaid").value = "no";
+        }
+        document.getElementById("securityAmount").value =
+          document.getElementById("securityPaid").value === "yes" ? String(SECURITY_AMOUNT) : "0";
         updateTotalAmount();
       }
 
@@ -1861,6 +1863,7 @@
           "aadharNo",
         ].forEach((id) => (document.getElementById(id).value = ""));
         document.getElementById("securityAmount").value = "500";
+        document.getElementById("securityPaid").value = "yes";
         buildSeatOptions();
         buildPlanOptions();
         document.getElementById("date").valueAsDate = new Date();
@@ -1891,7 +1894,6 @@
         const billDate = formatDateDisplay(member.date);
         const expiryDate = formatDateDisplay(member.expiry);
         const packageLabel = getPlanLabel(member.package);
-        const amountLabel = formatCurrency(member.amount);
 
         doc.setFillColor(250, 247, 242);
         doc.roundedRect(12, 12, 186, 270, 6, 6, "F");
@@ -1932,7 +1934,13 @@
             ["Payment Mode", member.payMode || "N/A"],
             ["Joining / Renewal Date", billDate],
             ["Membership Expiry", expiryDate],
-            ["Amount Paid", amountLabel],
+            ["Membership Amount", formatCurrency(getMembershipFee(member))],
+            [
+              "Security Deposit",
+              getSecurityAmount(member) > 0
+                ? `Paid (${formatCurrency(getSecurityAmount(member))})`
+                : "Not paid",
+            ],
           ],
           headStyles: { fillColor: [59, 42, 31] },
           styles: { fontSize: 11, cellPadding: 4 },
@@ -2017,8 +2025,7 @@
           const eObj = parseAnyDate(m.expiry);
           if (
             eObj &&
-            eObj.getMonth() === selectedMonth &&
-            eObj.getFullYear() === selectedYear
+            isDateInSelectedPeriod(eObj)
           ) {
             renewalData.push([
               m.memNo,
